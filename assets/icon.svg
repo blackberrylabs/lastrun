@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <!-- Placeholder icon in the family's style: the dark tile, one shape, one accent.
-       Replace the shape; keep the tile and the colours (#2d3440→#1b2029, #f4f6f9, #eb6834,
-       #2fa32f) so the family reads as one. -->
+  <!-- Lastrun: a dark tile, the agents' black box — a recorder holding a track of what was
+       done, one mark per action, the last run in orange — and a green replay arrow: it is
+       read back, never changed. -->
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#2d3440"/>
@@ -9,6 +9,23 @@
     </linearGradient>
   </defs>
   <rect x="32" y="32" width="448" height="448" rx="96" fill="url(#bg)"/>
-  <rect x="136" y="136" width="240" height="240" rx="32" fill="#f4f6f9"/>
-  <circle cx="336" cy="176" r="28" fill="#eb6834"/>
+  <!-- the recorder -->
+  <rect x="104" y="152" width="304" height="232" rx="32" fill="#f4f6f9"/>
+  <!-- its two straps -->
+  <rect x="104" y="196" width="304" height="14" fill="#dfe4ea"/>
+  <rect x="104" y="326" width="304" height="14" fill="#dfe4ea"/>
+  <!-- the track: actions recorded one after the other -->
+  <line x1="140" y1="270" x2="372" y2="270" stroke="#2d3440" stroke-width="12" stroke-linecap="round"/>
+  <g fill="#2d3440">
+    <rect x="148" y="238" width="24" height="64" rx="12"/>
+    <rect x="192" y="250" width="24" height="40" rx="12"/>
+    <rect x="236" y="228" width="24" height="84" rx="12"/>
+    <rect x="280" y="246" width="24" height="48" rx="12"/>
+  </g>
+  <!-- the last run -->
+  <rect x="324" y="218" width="28" height="104" rx="14" fill="#eb6834"/>
+  <!-- replay: green, read back and nothing else -->
+  <circle cx="372" cy="140" r="48" fill="#2fa32f"/>
+  <path d="M346 140 A26 26 0 1 0 372 114" fill="none" stroke="#f4f6f9" stroke-width="11" stroke-linecap="round"/>
+  <path d="M356 114 L376 100 L376 128 Z" fill="#f4f6f9" stroke="#f4f6f9" stroke-width="4" stroke-linejoin="round"/>
 </svg>

@@ -29,7 +29,25 @@
       confondus, sous-agents non signales, `| head` en erreur) — 27 tests
 - [x] Passage reel 2 (2026-10-17) : corrections verifiees ; trois restes corriges (`cacheKey`
       pris pour un secret, un paquet Python compte sous deux ecritures, UUID coupes trop long)
-- [ ] Passage reel 3 : zero faux constat
+- [x] Passage reel 3 (2026-10-17, commit `f4449bc`) : zero faux constat — 7 constats, tous
+      justes ; moteur valide
 
 ## Etape 2. Maquette validee, puis app (Sessions, Actions, Supprimes, Paquets, Refuses)
-## Etape 3. Paquets, depot, release 0.1.0 — sur accord ; `modules/lastrun.toml` + `latest` dans la tour ; hubs le jour meme ; `github_meta.sh`
+- [x] Maquette A1 (constats, onglet Sessions, detail d'un constat) et A2 (onglet Supprimes,
+      chronologie d'une session) et icone — validees le 2026-10-17, avec R7 (existe a nouveau)
+- [x] App : le gabarit de la famille (titre-phrase, 4 cartes, constats, detail, pied),
+      quatre onglets a gauche, a droite le constat ou la session choisis ; diff a la demande
+      (`core/src/diff.rs`) ; EN/FR, clair/sombre ; icones 16–512 — 30 tests, clippy propre
+- [ ] Passage reel de l'app sur le poste d'Alexandre
+## Etape 3. Paquets, depot, release 0.1.0 — sur accord
+Suivant `Blackberrylabs/docs/new-module.md` (§0–2 deja tenus : gabarit, `bbl-hostrules`,
+rapport `bbl-report/1` verifie par les tests, gravites dans le CHANGELOG) :
+- [x] §3 `--select <id du constat>` tenu par l'app reelle
+- [ ] §4 dans la tour : `modules/lastrun.toml`, l'entree de `spec.rs`, le rapport de Lastrun
+      dans `tests/fixtures/reports/` (chemins `/home/me`), les comptes de modules des tests ;
+      essai a blanc fait le 2026-10-17 : la fiche se charge, le rapport passe
+      `the_real_reports_conform_and_open_their_module`, seuls les comptes 5 → 6 sont a changer
+- [ ] §5 passage reel du module et de `bbl refresh` avec Lastrun installe ; README du module
+      et de la tour, profil de l'organisation ; `github_meta.sh`
+- [ ] Release du module d'abord (« Get it » doit tomber sur un paquet), la tour ensuite
+      (`latest = "0.1.0"`)

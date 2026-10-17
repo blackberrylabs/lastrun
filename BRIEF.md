@@ -84,7 +84,8 @@ personne ou par une règle, sauf chez Claude Code et Copilot CLI qui donnent la 
 
 Hors périmètre v0.1 : juger l'**intention** (pourquoi l'agent a fait ça) ; demander à l'agent
 ce qu'il a fait ; les hôtes sans journal ; le « en direct » (hooks, offset) ; comparer au
-disque réel (ce qui existe encore ou non) ; les actions des connecteurs de Claude Desktop chat.
+disque réel au-delà d'une seule question — le fichier supprimé existe-t-il à nouveau (R7) ;
+les actions des connecteurs de Claude Desktop chat.
 
 ### Chiffres du résumé (cartes de la tour)
 
@@ -167,6 +168,13 @@ Validées par Alexandre en bloc (« Oui, je valide. Tu peux y aller. »), avec l
 - **R5 — Fenêtre 30 jours par défaut**, `--since` pour le reste.
 - **R6 — Les vues « Fichiers supprimés », « Paquets installés », « Commandes refusées »** en
   premier rang de l'app, à côté de Sessions et Actions.
+- **R7 — Un fichier supprimé dit s'il existe à nouveau** (« exists again » / « the file does
+  not exist today ») : une simple lecture des métadonnées, rien d'autre comparé au disque.
+  Validé avec la maquette le 2026-10-17.
+- **Maquette validée le 2026-10-17** (A1, A2, icône) : le gabarit de la famille ; à gauche
+  quatre onglets (Sessions, Supprimés, Paquets, Refusés) ; au milieu les constats ; à droite
+  le constat ou la session choisis, avec la chronologie de ses actions et le diff à la
+  demande.
 
 Détail de mise en œuvre (non une décision) : les lecteurs d'actions vivent dans
 `lastrun-core`, à côté des fiches, comme les lecteurs de jetons vivent dans Billfold ; ils

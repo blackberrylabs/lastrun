@@ -62,7 +62,15 @@ lastrun --host codex          # one host
 lastrun report                # bbl-report/1 for the Blackberrylabs control tower
 lastrun --json …              # for scripts
 lastrun-app                   # the desktop app
+lastrun-app --session 3f9a    # … open on one session
+lastrun-app --tab deleted     # … on the files deleted (also packages, refused)
 ```
+
+The app shows the findings in the middle; on the left, four tabs — **Sessions**, **Deleted**,
+**Packages**, **Refused**; on the right, the finding or the session picked: its actions in
+order, filtered by kind, searched in the commands and paths only, and — for an edit — the
+diff, read again from the transcript when you ask (Claude Code, Codex, OpenCode, Kilo,
+Gemini CLI, Qwen Code). A deleted file says whether it exists again today.
 
 ## Promises
 
@@ -103,7 +111,7 @@ report from [`bbl-report`](https://github.com/blackberrylabs/bbl-report).
 
 ## Status
 
-In development — command line first, the app after its mock-up is validated.
+In development — command line and app done, checked on a real machine; release 0.1.0 next.
 
 ## License
 

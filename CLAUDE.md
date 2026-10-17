@@ -48,6 +48,8 @@ verifier par `git log --format='%an <%ae>'` avant tout push.
 - Tests : `tests/promises.rs`, `tests/scan.rs` (faux HOME, un constat de chaque sorte ;
   `LASTRUN_FIXTURE_OUT=dir cargo test --test scan write_fixture` l'ecrit sur disque).
 - `crates/cli` (`lastrun`, `sessions`, `actions`, `deleted`, `packages`, `denied`, `hosts`,
-  `report`), `crates/app` (`lastrun-app --select`).
+  `report`), `crates/app` (`lastrun-app --select <id> --session <id> --tab
+  sessions|deleted|packages|refused --since <jours> --home <dir>`) ; `core/src/diff.rs` : le
+  diff d'une edition, relu a la demande (R2).
 - Les onze constats et leur gravite : `model.rs` et CHANGELOG.
 - `docs/new-module.md` de la tour : la marche a suivre complete.

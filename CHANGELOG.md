@@ -28,6 +28,17 @@ read-only, no network, never the text of an exchange.
 - Command rules (`rules/*.toml`): 11 destructive, 2 pipe-to-shell, 9 package managers, each
   sourced. `rm` targets become deleted files.
 
+### App
+
+- `lastrun-app`: the family's screen — a headline, four cards (sessions, commands, files
+  deleted, packages), the findings in the middle; on the left four tabs, **Sessions**,
+  **Deleted**, **Packages**, **Refused**; on the right the finding or the session picked,
+  its actions in order (filtered by kind, searched in commands and paths only), and the diff
+  of an edit, read again from the transcript on demand, secrets masked (Claude Code, Codex,
+  OpenCode, Kilo, Gemini CLI, Qwen Code). A deleted file says whether it exists again.
+  English and French, light and dark. `--select <finding id>` (the tower), `--session <id>`,
+  `--tab`, `--since`, `--home`.
+
 ### Summary figures for the tower
 
 `sessions_30d`, `commands_30d`, `files_deleted_30d`, `findings`.

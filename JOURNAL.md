@@ -3,6 +3,27 @@
 
 ---
 
+## 2026-10-17 — maquette validee, puis l'app
+
+- **Rappel d'Alexandre** : suivre le dossier des nouveaux modules de la tour
+  (`Blackberrylabs/docs/new-module.md`). Lastrun en suit deja les §0–2 (parti de `Template`,
+  rapport conforme et teste, gravites dans le CHANGELOG) ; essai a blanc dans une copie de la
+  tour : la fiche se charge, le rapport passe le test de la tour, seuls les comptes de
+  modules (5 → 6) sont a changer. Le reste (§3–5) est ecrit dans le PLAN, etape 3.
+- **Maquette A1/A2 et icone validees** (« oui je valide ») avec un point au-dela du BRIEF :
+  dire si un fichier supprime existe a nouveau — devenu **R7**, une lecture de metadonnees.
+- **L'app** : le gabarit de Billfold et Linstruct, quatre onglets a gauche (Sessions,
+  Supprimes, Paquets, Refuses), la chronologie d'une session a droite, filtres par sorte,
+  recherche sur les commandes et les chemins seulement. Le **diff a la demande** (R2) :
+  `diff.rs` relit la transcription en lecture seule, retrouve l'appel par son identifiant
+  et ne garde que sa modification, secrets masques — Claude Code (`structuredPatch`, sinon
+  l'entree), Codex (l'enveloppe apply_patch, la section du fichier), OpenCode et Kilo
+  (`metadata.diff`), Gemini et Qwen (`fileDiff`). Les autres hotes le disent.
+- **Verifie a l'ecran** sur le faux HOME (Xvfb) : constat choisi, session ouverte, action
+  choisie, diff affiche, francais et sombre. 30 tests, clippy propre.
+
+---
+
 ## 2026-10-17 — premier passage reel
 
 - **Ce que le poste a montre** : 27 sessions (26 OpenCode, 1 Claude Code), 1 294 commandes,

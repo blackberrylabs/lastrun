@@ -19,6 +19,7 @@ iced = { version = "=0.13.1", features = ["tokio"] }
 bbl-ui.workspace = true
 serde.workspace = true
 serde_json.workspace = true
+chrono.workspace = true
 
 # ---------------------------------------------------------------- packaging
 # `packaging/build.sh` builds the workspace once, then runs `cargo deb --no-build` and

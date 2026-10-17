@@ -15,6 +15,7 @@
 #![forbid(unsafe_code)]
 
 pub mod command;
+pub mod diff;
 pub mod findings;
 pub mod model;
 pub mod read;

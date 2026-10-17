@@ -233,43 +233,12 @@ pub fn build(
     // ---- outside the project: one per session
     let mut outside: BTreeMap<(String, String), Vec<&Action>> = BTreeMap::new();
     for a in &inv.actions {
-        if !a.touches_file() || !a.ran() {
-            continue;
+        if outside_project(inv, sheets, a) {
+            outside
+                .entry((a.host.clone(), a.session.clone()))
+                .or_default()
+                .push(a);
         }
-        let Some(p) = a.path.as_deref() else { continue };
-        if !p.is_absolute() {
-            continue;
-        }
-        let Some(project) = inv
-            .session(&a.host, &a.session)
-            .and_then(|s| s.project.clone())
-            .or_else(|| a.cwd.clone())
-        else {
-            continue;
-        };
-        // temporary directories are fair game, unless the project itself lives in one
-        if p.starts_with(&project)
-            || (crate::command::is_temp(p) && !crate::command::is_temp(&project))
-        {
-            continue;
-        }
-        let own = sheets
-            .host(&a.host)
-            .map(|h| h.ext.own_dirs.clone())
-            .unwrap_or_default();
-        if own.iter().any(|d| {
-            let d = d
-                .strip_prefix("~/")
-                .map(|r| inv.home.join(r))
-                .unwrap_or_else(|| PathBuf::from(d));
-            p.starts_with(d)
-        }) {
-            continue;
-        }
-        outside
-            .entry((a.host.clone(), a.session.clone()))
-            .or_default()
-            .push(a);
     }
     let outside_sessions: BTreeSet<(String, String)> = outside.keys().cloned().collect();
     for ((host, session), acts) in &outside {
@@ -608,6 +577,40 @@ pub fn build(
         (a.kind.severity().number(), a.kind).cmp(&(b.kind.severity().number(), b.kind))
     });
     out
+}
+
+/// A file the action wrote or deleted outside its session's project: not under the project,
+/// not in a temporary directory (unless the project itself lives in one), not in the host's
+/// own folders. Shared by the finding and the app's Deleted view.
+pub fn outside_project(inv: &Inventory, sheets: &Sheets, a: &Action) -> bool {
+    if !a.touches_file() || !a.ran() {
+        return false;
+    }
+    let Some(p) = a.path.as_deref().filter(|p| p.is_absolute()) else {
+        return false;
+    };
+    let Some(project) = inv
+        .session(&a.host, &a.session)
+        .and_then(|s| s.project.clone())
+        .or_else(|| a.cwd.clone())
+    else {
+        return false;
+    };
+    if p.starts_with(&project) || (crate::command::is_temp(p) && !crate::command::is_temp(&project))
+    {
+        return false;
+    }
+    let own = sheets
+        .host(&a.host)
+        .map(|h| h.ext.own_dirs.clone())
+        .unwrap_or_default();
+    !own.iter().any(|d| {
+        let d = d
+            .strip_prefix("~/")
+            .map(|r| inv.home.join(r))
+            .unwrap_or_else(|| PathBuf::from(d));
+        p.starts_with(d)
+    })
 }
 
 fn op_word(op: Option<FileOp>) -> &'static str {
