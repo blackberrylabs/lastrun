@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased] — 0.1.0
+## [0.1.0] — 2026-10-17
 
 First version: what the AI agents did on a machine, read back from the hosts' transcripts —
 read-only, no network, never the text of an exchange.
@@ -51,5 +51,16 @@ read-only, no network, never the text of an exchange.
   characters: `DB_PASSWORD=••••••••`. The name must end with KEY, TOKEN, SECRET, PASSWORD,
   PASSWD, PWD or CREDENTIAL(S), and not be a name that only ends like one (a key that indexes
   — `cacheKey`, `primaryKey` —, a public key, a paging token, a bare `key`); identifiers,
-  dotted names, paths, code and references are not values. JSON is read unescaped, value beside its key, so an escaped line break never glues
-  two values together.
+  dotted names, paths, code and references are not values. JSON is read unescaped, value
+  beside its key, so an escaped line break never glues two values together.
+
+### Known limits
+
+- Built on Ubuntu 24.04: the app needs glibc 2.39, the command line glibc 2.34 — as the
+  other modules of the family.
+- SQLite databases (OpenCode, Kilo, Goose, Zed, Kiro) are opened read-only and immutable, so
+  nothing is written beside them, not even a `-wal` file; the price is that changes the host
+  has not yet checkpointed are not seen until it does.
+- Kiro's reader follows the shape of its predecessor and is marked `observed`.
+- The diff of an edit is read for Claude Code, Codex, OpenCode, Kilo, Gemini CLI and Qwen
+  Code; the other hosts say so.

@@ -111,7 +111,8 @@ report from [`bbl-report`](https://github.com/blackberrylabs/bbl-report).
 
 ## Status
 
-In development — command line and app done, checked on a real machine; release 0.1.0 next.
+0.1.0 — first release. Packages (`.deb`, `.rpm`, AppImage, x86_64) on the
+[releases page](https://github.com/blackberrylabs/lastrun/releases). License MIT — Alexandre Do.
 
 ## License
 

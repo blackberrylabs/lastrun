@@ -38,7 +38,7 @@
 - [x] App : le gabarit de la famille (titre-phrase, 4 cartes, constats, detail, pied),
       quatre onglets a gauche, a droite le constat ou la session choisis ; diff a la demande
       (`core/src/diff.rs`) ; EN/FR, clair/sombre ; icones 16–512 — 30 tests, clippy propre
-- [ ] Passage reel de l'app sur le poste d'Alexandre
+- [x] Passage reel de l'app sur le poste d'Alexandre — validee le 2026-10-17 (commit `e911506`)
 ## Etape 3. Paquets, depot, release 0.1.0 — sur accord
 Suivant `Blackberrylabs/docs/new-module.md` (§0–2 deja tenus : gabarit, `bbl-hostrules`,
 rapport `bbl-report/1` verifie par les tests, gravites dans le CHANGELOG) :
