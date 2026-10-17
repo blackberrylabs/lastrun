@@ -280,7 +280,7 @@ pub fn scan_with(
         x.0 = remap[&x.0];
     }
 
-    inv.short_len = crate::model::short_len(inv.sessions.iter().map(|s| s.id.as_str()));
+    inv.short_lens = crate::model::short_lens(inv.sessions.iter().map(|s| s.id.as_str()));
     inv.findings = crate::findings::build(&inv, &analysis, sheets, rules, opt.now);
     (inv, analysis)
 }

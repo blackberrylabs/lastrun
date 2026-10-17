@@ -425,7 +425,9 @@ pub fn build(
     }
 
     // ---- packages: one per session
-    let mut pk: BTreeMap<(String, String), BTreeMap<String, BTreeSet<String>>> = BTreeMap::new();
+    // per session, per manager: one name per package, whatever the spelling
+    let mut pk: BTreeMap<(String, String), BTreeMap<String, BTreeMap<String, String>>> =
+        BTreeMap::new();
     for (i, inst) in &an.installs {
         let a = &inv.actions[*i];
         if !a.ran() {
@@ -437,15 +439,18 @@ pub fn build(
             .entry(inst.manager.clone())
             .or_default();
         if inst.packages.is_empty() {
-            e.insert("(the project's dependencies)".into());
+            e.insert(String::new(), "(the project's dependencies)".into());
         } else {
-            e.extend(inst.packages.iter().cloned());
+            for p in &inst.packages {
+                e.entry(crate::rules::package_key(&inst.manager, p))
+                    .or_insert_with(|| p.clone());
+            }
         }
     }
     for ((host, session), managers) in &pk {
         let n: usize = managers
             .values()
-            .map(|v| v.iter().filter(|p| !p.starts_with('(')).count())
+            .map(|v| v.values().filter(|p| !p.starts_with('(')).count())
             .sum();
         let s = inv.session(host, session);
         let mut f = base(
@@ -474,7 +479,12 @@ pub fn build(
         f.path = s.map(|s| s.transcript.clone());
         f.evidence = managers
             .iter()
-            .map(|(m, p)| format!("{m}: {}", p.iter().cloned().collect::<Vec<_>>().join(", ")))
+            .map(|(m, p)| {
+                format!(
+                    "{m}: {}",
+                    p.values().cloned().collect::<Vec<_>>().join(", ")
+                )
+            })
             .collect();
         out.push(f);
     }

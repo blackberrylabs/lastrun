@@ -200,7 +200,7 @@ fn sessions(out: &mut impl Write, inv: &Inventory, host: Option<&str>, json: boo
         return Ok(());
     }
     header(out, inv)?;
-    let w = inv.short_len.max(8);
+    let w = inv.short_width();
     writeln!(
         out,
         "{:<16} {:<17} {:<w$} {:>7} {:>5} {:>5} {:>4}  project",
@@ -364,7 +364,7 @@ fn deleted(out: &mut impl Write, inv: &Inventory, host: Option<&str>, json: bool
     if ds.is_empty() {
         writeln!(out, "No file deleted by an agent in the window.")?;
     }
-    let w = inv.short_len.max(8);
+    let w = inv.short_width();
     for a in ds {
         let exists = a.path.as_deref().is_some_and(|p| p.exists());
         writeln!(
@@ -442,7 +442,7 @@ fn packages(
         writeln!(
             out,
             "{w:<17} {h:<16} {s:<sw$} {m:<6} {p}",
-            sw = inv.short_len.max(8)
+            sw = inv.short_width()
         )?;
     }
     Ok(())
@@ -461,7 +461,7 @@ fn denied(out: &mut impl Write, inv: &Inventory, host: Option<&str>, json: bool)
     if ds.is_empty() {
         writeln!(out, "No call recorded as refused in the window.")?;
     }
-    let w = inv.short_len.max(8);
+    let w = inv.short_width();
     for a in ds {
         let name = inv
             .hosts

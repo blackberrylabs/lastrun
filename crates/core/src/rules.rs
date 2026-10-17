@@ -303,17 +303,22 @@ fn package_args(manager: &str, args: &[String]) -> Vec<String> {
             continue;
         }
         if let Some(name) = package_name(manager, t) {
-            let key = if matches!(manager, "pip" | "uv") {
-                name.to_lowercase().replace(['_', '.'], "-")
-            } else {
-                name.to_lowercase()
-            };
-            if seen.insert(key) {
+            if seen.insert(package_key(manager, &name)) {
                 out.push(name);
             }
         }
     }
     out
+}
+
+/// The name under which two spellings of one package are the same (`typing_extensions`,
+/// `typing-extensions`: Python names compare with `-`, `_` and `.` as one).
+pub fn package_key(manager: &str, name: &str) -> String {
+    if matches!(manager, "pip" | "uv") {
+        name.to_lowercase().replace(['_', '.'], "-")
+    } else {
+        name.to_lowercase()
+    }
 }
 
 fn name_re() -> &'static Regex {

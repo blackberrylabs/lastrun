@@ -27,7 +27,9 @@
 - [x] Passage reel 1 (2026-10-17) : 27 sessions, 1 294 commandes, 4 hotes presents ; cinq
       defauts corriges (faux secrets, paquets lus dans un `$(…)`, identifiants OpenCode
       confondus, sous-agents non signales, `| head` en erreur) — 27 tests
-- [ ] Passage reel 2 : les corrections verifiees sur le poste
+- [x] Passage reel 2 (2026-10-17) : corrections verifiees ; trois restes corriges (`cacheKey`
+      pris pour un secret, un paquet Python compte sous deux ecritures, UUID coupes trop long)
+- [ ] Passage reel 3 : zero faux constat
 
 ## Etape 2. Maquette validee, puis app (Sessions, Actions, Supprimes, Paquets, Refuses)
 ## Etape 3. Paquets, depot, release 0.1.0 — sur accord ; `modules/lastrun.toml` + `latest` dans la tour ; hubs le jour meme ; `github_meta.sh`

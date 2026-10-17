@@ -251,6 +251,23 @@ fn name_re() -> &'static Regex {
     RE.get_or_init(|| Regex::new(&format!(r"(?i)^{NAME}$")).unwrap())
 }
 
+/// Names that end like a secret and are not one: a key that indexes (`cacheKey`,
+/// `primaryKey`, `sortKey`), a key that is public, a token that pages or counts
+/// (`next_page_token`, `max_tokens`), a bare `key` of a key/value pair.
+fn not_a_secret_name(name: &str) -> bool {
+    static RE: OnceLock<Regex> = OnceLock::new();
+    let re = RE.get_or_init(|| {
+        Regex::new(concat!(
+            r"(?i)(public|cache|primary|foreign|sort|partition|idempot|dedup|hotkey|lookup",
+            r"|row|group|object|map|i18n|transl|page|cursor|continu|next|sync|csrf|xsrf",
+            r"|nonce|max|min|num|count|total|input|output|prompt|completion|storage|unique",
+            r"|composite|schema|index|sequence|monkey|turkey)"
+        ))
+        .unwrap()
+    });
+    name.eq_ignore_ascii_case("key") || re.is_match(name)
+}
+
 fn assign_re() -> &'static Regex {
     static RE: OnceLock<Regex> = OnceLock::new();
     RE.get_or_init(|| {
@@ -419,7 +436,11 @@ pub fn mask(text: &str) -> (String, Vec<Hit>) {
     s = assign_re()
         .replace_all(&s, |c: &regex::Captures| {
             let v = &c[3];
-            if v.contains('…') || v.contains(DOTS) || !assigned_value_is_secret(v) {
+            if v.contains('…')
+                || v.contains(DOTS)
+                || not_a_secret_name(&c[1])
+                || !assigned_value_is_secret(v)
+            {
                 c[0].to_string()
             } else {
                 let unquoted = v.trim_matches(|c| c == '"' || c == '\'');
@@ -443,7 +464,11 @@ pub fn mask(text: &str) -> (String, Vec<Hit>) {
 /// A value under a key of a structure (`{"apiKey": "…"}`): a credential when the key says so
 /// and the value is not a word, a path or a reference. A known shape is found by `mask`.
 pub fn named_value(key: &str, value: &str) -> Option<Hit> {
-    if !name_re().is_match(key) || shape_re().is_match(value) || !assigned_value_is_secret(value) {
+    if !name_re().is_match(key)
+        || not_a_secret_name(key)
+        || shape_re().is_match(value)
+        || !assigned_value_is_secret(value)
+    {
         return None;
     }
     Some(Hit {
@@ -736,6 +761,10 @@ mod tests {
             format!("apiKey={DOTS}")
         );
         assert!(named_value("model", &pw).is_none());
+        assert!(named_value("cacheKey", &pw).is_none());
+        assert!(named_value("key", &pw).is_none());
+        assert!(named_value("privateKey", &pw).is_some());
+        assert!(named_value("client_secret", &pw).is_some());
     }
 
     #[test]
@@ -752,6 +781,12 @@ mod tests {
             "password: ${{ secrets.DB_PASSWORD_2 }}",
             "PWD=/home/a/proj2/build",
             "token: N/A\nHeader2025",
+            // the same, as raw JSON writes it: an escaped line break, not a space
+            r"OPENAI_API_KEY=None\nHF_TOKEN=None\n[gpt-5.2]",
+            // seen on a real machine: a key that indexes a cache
+            "cacheKey=a1b2c3d4e5f6a7b8c9d0",
+            r#"{"publicKey": "MFkwEwYHKoZIzj0CAQYIKo", "next_page_token": "CAEQABoWCg9zdHJpbmc2"}"#,
+            "primaryKey: user2024abcdef, key=session7f3a9c2e41",
         ] {
             let (m, hits) = mask(text);
             assert!(hits.is_empty(), "{text} → {m}");

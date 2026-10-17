@@ -26,6 +26,13 @@
      court qui les distingue (8 au moins), et les sous-agents sont signales.
   5. *`| head`* — « Error: Broken pipe » : le lecteur parti n'est plus une erreur.
 - **Preuve** : 27 tests (le faux HOME rejoue les cinq cas), clippy propre.
+- **Passage 2** (commit `6286572`) : plus qu'un « secret », `cacheKey=…` — une cle qui indexe
+  un cache, pas un identifiant. Les noms qui finissent comme un secret sans en etre un sont
+  ecartes (cle d'index, cle publique, jeton de pagination, `key` nu). `typing_extensions`
+  et `typing-extensions` comptaient pour deux : un paquet Python est un seul nom, quelle que
+  soit l'ecriture. Les UUID de Claude Code etaient coupes a 16 caracteres pour suivre ceux
+  d'OpenCode : chaque identifiant a maintenant sa propre longueur. Le compte des
+  transcriptions Claude Code (1 en 30 jours) confirme la session unique.
 
 ---
 

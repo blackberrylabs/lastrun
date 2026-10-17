@@ -143,6 +143,9 @@ fn one_finding_of_each_kind() {
     assert!(oc.detail.contains("ses_f227aa01"), "{}", oc.detail);
     assert!(oc.hint.as_deref().unwrap().contains("would lose them all"));
     assert_eq!(inv.short("ses_f227aa01Xq"), "ses_f227aa01");
+    // a UUID keeps its 8 characters whatever the OpenCode ids need
+    assert_eq!(inv.short("cc-s1"), "cc-s1");
+    assert_eq!(inv.short_width(), 12);
     let sub = inv.session("opencode", "ses_f227aa02Lm").unwrap();
     assert!(sub.subagent);
     let pk: Vec<_> = inv
@@ -151,7 +154,12 @@ fn one_finding_of_each_kind() {
         .filter(|f| f.kind == Kind::PackageInstall && f.host.as_deref() == Some("opencode"))
         .collect();
     assert_eq!(pk.len(), 1);
-    assert_eq!(pk[0].evidence, vec!["pip: devtools, pandas"]);
+    // one name per package, across installs and spellings
+    assert_eq!(
+        pk[0].evidence,
+        vec!["pip: devtools, pandas, typing_extensions"]
+    );
+    assert_eq!(pk[0].title, "3 package(s) installed by the agent");
     // Cursor present, no log; the hosts not on this machine are not findings
     assert!(inv
         .findings

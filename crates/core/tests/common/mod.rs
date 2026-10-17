@@ -183,6 +183,17 @@ pub fn fixture(home: &Path) {
             serde_json::json!({"type": "tool", "callID": "k3", "tool": "bash", "state": {"status": "completed", "input": {"command": "venv/bin/python -m pip install \"pandas==$(grep '^version' x/uv.lock | cut -d= -f2)\" devtools devtools==0.12.2"}, "metadata": {"exit": 0}}}),
         ),
     ];
+    let more = [
+        ("p4", "pip install typing_extensions"),
+        ("p5", "pip install typing-extensions==4.15.0"),
+    ];
+    let parts = parts.into_iter().chain(more.into_iter().map(|(id, cmd)| {
+        (
+            id,
+            "ses_f227aa02Lm",
+            serde_json::json!({"type": "tool", "callID": id, "tool": "bash", "state": {"status": "completed", "input": {"command": cmd}, "metadata": {"exit": 0}}}),
+        )
+    }));
     for (id, sid, v) in parts {
         c.execute(
             "INSERT INTO part VALUES (?1, 'm2', ?2, ?3, ?4)",

@@ -295,35 +295,43 @@ pub struct Inventory {
     pub actions: Vec<Action>,
     pub findings: Vec<Finding>,
     pub errors: Vec<String>,
-    /// How many characters of a session id tell it apart from every other (`short`).
+    /// How many characters of each session id tell it apart from every other (`short`).
     #[serde(skip)]
-    pub short_len: usize,
+    pub short_lens: std::collections::HashMap<String, usize>,
 }
 
-/// The shortest length, from 8, at which every id is told apart from the others: OpenCode's
-/// ids begin with their time, so sessions opened a minute apart share a long prefix.
-pub fn short_len<'a>(ids: impl Iterator<Item = &'a str>) -> usize {
+/// For each id, the shortest prefix, from 8 characters, that no other id shares: a UUID keeps
+/// its 8, while OpenCode's ids, which begin with their time, need more when sessions were
+/// opened a minute apart.
+pub fn short_lens<'a>(
+    ids: impl Iterator<Item = &'a str>,
+) -> std::collections::HashMap<String, usize> {
     let mut v: Vec<&str> = ids.collect();
     v.sort_unstable();
     v.dedup();
-    v.windows(2)
-        .map(|w| {
-            w[0].chars()
-                .zip(w[1].chars())
-                .take_while(|(a, b)| a == b)
-                .count()
-                + 1
+    let common = |a: &str, b: &str| a.chars().zip(b.chars()).take_while(|(x, y)| x == y).count();
+    (0..v.len())
+        .map(|i| {
+            let before = if i > 0 { common(v[i - 1], v[i]) } else { 0 };
+            let after = v.get(i + 1).map_or(0, |n| common(v[i], n));
+            (v[i].to_string(), (before.max(after) + 1).max(8))
         })
-        .fold(8, usize::max)
+        .collect()
 }
 
 impl Inventory {
     /// A session id as the CLI, the app and the findings show it; `lastrun actions` takes it.
     pub fn short<'a>(&self, id: &'a str) -> &'a str {
-        match id.char_indices().nth(self.short_len.max(8)) {
+        let n = self.short_lens.get(id).copied().unwrap_or(8);
+        match id.char_indices().nth(n) {
             Some((i, _)) => &id[..i],
             None => id,
         }
+    }
+
+    /// The width of a column of short ids.
+    pub fn short_width(&self) -> usize {
+        self.short_lens.values().copied().max().unwrap_or(8).max(8)
     }
 
     pub fn session(&self, host: &str, id: &str) -> Option<&Session> {

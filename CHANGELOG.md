@@ -38,6 +38,7 @@ read-only, no network, never the text of an exchange.
   its first 6 and last 4 characters, as everywhere in the family.
 - A value under a secret-looking name (`DB_PASSWORD=`, `apiKey:`, `Bearer`) shows none of its
   characters: `DB_PASSWORD=••••••••`. The name must end with KEY, TOKEN, SECRET, PASSWORD,
-  PASSWD, PWD or CREDENTIAL(S); identifiers, dotted names, paths, code and references are not
-  values. JSON is read unescaped, value beside its key, so an escaped line break never glues
+  PASSWD, PWD or CREDENTIAL(S), and not be a name that only ends like one (a key that indexes
+  — `cacheKey`, `primaryKey` —, a public key, a paging token, a bare `key`); identifiers,
+  dotted names, paths, code and references are not values. JSON is read unescaped, value beside its key, so an escaped line break never glues
   two values together.
