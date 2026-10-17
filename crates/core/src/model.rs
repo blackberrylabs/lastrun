@@ -295,9 +295,37 @@ pub struct Inventory {
     pub actions: Vec<Action>,
     pub findings: Vec<Finding>,
     pub errors: Vec<String>,
+    /// How many characters of a session id tell it apart from every other (`short`).
+    #[serde(skip)]
+    pub short_len: usize,
+}
+
+/// The shortest length, from 8, at which every id is told apart from the others: OpenCode's
+/// ids begin with their time, so sessions opened a minute apart share a long prefix.
+pub fn short_len<'a>(ids: impl Iterator<Item = &'a str>) -> usize {
+    let mut v: Vec<&str> = ids.collect();
+    v.sort_unstable();
+    v.dedup();
+    v.windows(2)
+        .map(|w| {
+            w[0].chars()
+                .zip(w[1].chars())
+                .take_while(|(a, b)| a == b)
+                .count()
+                + 1
+        })
+        .fold(8, usize::max)
 }
 
 impl Inventory {
+    /// A session id as the CLI, the app and the findings show it; `lastrun actions` takes it.
+    pub fn short<'a>(&self, id: &'a str) -> &'a str {
+        match id.char_indices().nth(self.short_len.max(8)) {
+            Some((i, _)) => &id[..i],
+            None => id,
+        }
+    }
+
     pub fn session(&self, host: &str, id: &str) -> Option<&Session> {
         self.sessions.iter().find(|s| s.host == host && s.id == id)
     }

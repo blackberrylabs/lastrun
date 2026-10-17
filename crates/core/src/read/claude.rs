@@ -51,10 +51,11 @@ fn one(ctx: &Ctx, f: &Path, text: &str, out: &mut Read) {
     let mut exempt = false;
     for (n, line) in text.lines().enumerate() {
         let lineno = Some((n + 1) as u32);
-        out.scan(f, lineno, line);
         let Ok(v) = serde_json::from_str::<Value>(line) else {
+            out.scan(f, lineno, line);
             continue;
         };
+        out.scan_value(f, lineno, None, &v);
         if session_id.is_none() {
             session_id = v.get("sessionId").and_then(Value::as_str).map(String::from);
         }

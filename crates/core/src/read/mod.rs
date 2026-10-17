@@ -49,7 +49,13 @@ pub struct SessionInfo {
 pub struct SecretHit {
     pub file: PathBuf,
     pub line: Option<u32>,
+    /// The session, when one file holds many (a database).
+    pub session: Option<String>,
     pub masked: String,
+    /// A known shape (`sk-ant-…`), or a value under a secret-looking name.
+    pub known: bool,
+    /// Counts the same value once; never shown.
+    pub fp: u64,
 }
 
 #[derive(Debug, Default)]
@@ -70,13 +76,42 @@ impl Read {
         self.errors.extend(o.errors);
     }
 
-    /// Scan a piece of text for credentials (masked forms only are kept).
+    /// Scan a piece of text for credentials (masked forms only are kept). JSON is read as
+    /// what it says — its strings unescaped, a value beside its key — so an escaped line
+    /// break or a quote never glues two values into one.
     pub fn scan(&mut self, file: &Path, line: Option<u32>, text: &str) {
-        for h in command::mask(text).1 {
+        self.scan_in(file, line, None, text);
+    }
+
+    pub fn scan_in(&mut self, file: &Path, line: Option<u32>, session: Option<&str>, text: &str) {
+        match serde_json::from_str::<Value>(text) {
+            Ok(v) => self.scan_value(file, line, session, &v),
+            Err(_) => self.keep(file, line, session, command::mask(text).1),
+        }
+    }
+
+    /// Scan a JSON value already parsed by the reader.
+    pub fn scan_value(&mut self, file: &Path, line: Option<u32>, session: Option<&str>, v: &Value) {
+        let mut hits = Vec::new();
+        walk_strings(v, None, &mut hits);
+        self.keep(file, line, session, hits);
+    }
+
+    fn keep(
+        &mut self,
+        file: &Path,
+        line: Option<u32>,
+        session: Option<&str>,
+        hits: Vec<command::Hit>,
+    ) {
+        for h in hits {
             self.secrets.push(SecretHit {
                 file: file.to_path_buf(),
                 line,
+                session: session.map(String::from),
                 masked: h.masked,
+                known: h.known,
+                fp: h.fp,
             });
         }
     }
@@ -513,6 +548,22 @@ impl Calls {
     }
     pub fn get(&self, id: &str) -> &[usize] {
         self.0.get(id).map(Vec::as_slice).unwrap_or(&[])
+    }
+}
+
+/// Every string of a JSON value, scanned; a string under a secret-looking key is also
+/// judged as that key's value.
+fn walk_strings(v: &Value, key: Option<&str>, hits: &mut Vec<command::Hit>) {
+    match v {
+        Value::String(s) => {
+            hits.extend(command::mask(s).1);
+            if let Some(h) = key.and_then(|k| command::named_value(k, s)) {
+                hits.push(h);
+            }
+        }
+        Value::Array(a) => a.iter().for_each(|x| walk_strings(x, None, hits)),
+        Value::Object(o) => o.iter().for_each(|(k, x)| walk_strings(x, Some(k), hits)),
+        _ => {}
     }
 }
 

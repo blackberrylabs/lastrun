@@ -238,18 +238,37 @@ pub fn from_argv(argv: &[String]) -> String {
 
 // ---------------------------------------------------------------- secrets
 
+/// What is shown in place of a value under a secret-looking name: none of its characters.
+pub const DOTS: &str = "••••••••";
+
+/// A name that says its value is a credential: it ends with KEY, TOKEN, SECRET, PASSWORD…
+/// (`OPENAI_API_KEY`, `apiKey`, `access_token`, `PGPASSWORD`), not merely contains one
+/// (`KEY_BY_PROVIDER`, `tokenizer`, `max_tokens`, `author`).
+const NAME: &str = r"[A-Za-z0-9_.-]*(?:key|token|secret|password|passwd|pwd|credentials?)";
+
+fn name_re() -> &'static Regex {
+    static RE: OnceLock<Regex> = OnceLock::new();
+    RE.get_or_init(|| Regex::new(&format!(r"(?i)^{NAME}$")).unwrap())
+}
+
 fn assign_re() -> &'static Regex {
     static RE: OnceLock<Regex> = OnceLock::new();
     RE.get_or_init(|| {
-        Regex::new(r#"(?i)\b([A-Z0-9_.-]*(?:KEY|TOKEN|SECRET|PASSW(?:OR)?D?|CREDENTIAL|AUTH)[A-Z0-9_.-]*)(\s*[=:]\s*)("[^"]*"|'[^']*'|[^\s"'&;|]+)"#).unwrap()
+        Regex::new(&format!(
+            r#"(?i)\b({NAME})\b(['"]?\s*[=:]\s*)("[^"\n]*"|'[^'\n]*'|[^\s"'&;|\\]+)"#
+        ))
+        .unwrap()
     })
 }
 
 fn bearer_re() -> &'static Regex {
     static RE: OnceLock<Regex> = OnceLock::new();
-    RE.get_or_init(|| {
-        Regex::new(r"(?i)\b(bearer|token|basic)\s+([A-Za-z0-9._~+/=-]{16,})").unwrap()
-    })
+    RE.get_or_init(|| Regex::new(r"(?i)\b(bearer|basic)\s+([A-Za-z0-9._~+/=-]{16,})").unwrap())
+}
+
+fn identifier_re() -> &'static Regex {
+    static RE: OnceLock<Regex> = OnceLock::new();
+    RE.get_or_init(|| Regex::new(r"^[A-Za-z_][A-Za-z0-9_]*(?:\.[A-Za-z_][A-Za-z0-9_]*)*$").unwrap())
 }
 
 /// Credential shapes with a known prefix. Pure hexadecimal is left out on purpose: commit
@@ -311,19 +330,30 @@ pub fn is_placeholder(v: &str) -> bool {
             <= 4
 }
 
+/// A value and the punctuation that closes the sentence or the structure around it.
+fn split_tail(v: &str) -> (&str, &str) {
+    let core = v.trim_end_matches([',', ';', ':', ')', ']', '}', '.']);
+    (core, &v[core.len()..])
+}
+
 /// Is a value under a secret-looking name a credential rather than a word, a path, a
-/// number or a reference?
+/// number, an identifier, a piece of code or a reference?
 fn assigned_value_is_secret(v: &str) -> bool {
-    let v = v.trim_matches(|c| c == '"' || c == '\'');
-    if v.len() < 12
-        || v.starts_with('$')
-        || v.starts_with('/')
-        || v.starts_with("~/")
+    let v = split_tail(v.trim_matches(|c| c == '"' || c == '\'')).0;
+    if v.chars().count() < 12
+        || v.starts_with(['$', '/', '.', '~', '<', '{', '[', '(', '-', '%'])
         || v.starts_with("http")
+        || v.contains(|c: char| c.is_whitespace() || "\\()[]{}<>,`'\"".contains(c))
+        || v.chars().all(|c| c.is_ascii_digit())
     {
         return false;
     }
-    if v.chars().all(|c| c.is_ascii_digit()) || v.contains(' ') {
+    // `KEY_BY_PROVIDER_1`, `settings.api_key2`: a name in code, not a value
+    if identifier_re().is_match(v) && (v.contains('_') || v.contains('.')) {
+        return false;
+    }
+    // `src/auth/token_store2.rs`: a relative path; a base64 credential is long and dotless
+    if v.contains('/') && (v.contains('.') || v.len() < 32) {
         return false;
     }
     let digits = v.chars().any(|c| c.is_ascii_digit());
@@ -331,10 +361,23 @@ fn assigned_value_is_secret(v: &str) -> bool {
     digits && letters && !is_placeholder(v)
 }
 
+fn fingerprint(v: &str) -> u64 {
+    use std::hash::{Hash, Hasher};
+    let mut h = std::collections::hash_map::DefaultHasher::new();
+    v.hash(&mut h);
+    h.finish()
+}
+
 /// One secret found in a text: the masked form only.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Hit {
+    /// What may be shown: `sk-ant…Wx3a` for a known shape, `DB_PASSWORD=••••••••` for a
+    /// value under a secret-looking name — none of whose characters is shown.
     pub masked: String,
+    /// A credential of a known shape (a provider's prefix), not only a secret-looking name.
+    pub known: bool,
+    /// Counts the same value once across a transcript; held in memory, never shown.
+    pub fp: u64,
 }
 
 /// Mask every credential in a text and say which were found. The clear text never leaves
@@ -348,7 +391,11 @@ pub fn mask(text: &str) -> (String, Vec<Hit>) {
                 v.to_string()
             } else {
                 let m = bbl_hostrules::secrets::mask(v);
-                hits.push(Hit { masked: m.clone() });
+                hits.push(Hit {
+                    masked: m.clone(),
+                    known: true,
+                    fp: fingerprint(v),
+                });
                 m
             }
         })
@@ -359,26 +406,51 @@ pub fn mask(text: &str) -> (String, Vec<Hit>) {
             if v.contains('…') || !assigned_value_is_secret(v) {
                 c[0].to_string()
             } else {
-                let m = bbl_hostrules::secrets::mask(v);
-                hits.push(Hit { masked: m.clone() });
-                format!("{} {m}", &c[1])
+                let shown = format!("{} {DOTS}", &c[1]);
+                hits.push(Hit {
+                    masked: shown.clone(),
+                    known: false,
+                    fp: fingerprint(v),
+                });
+                shown
             }
         })
         .into_owned();
     s = assign_re()
         .replace_all(&s, |c: &regex::Captures| {
             let v = &c[3];
-            if v.contains('…') || !assigned_value_is_secret(v) {
+            if v.contains('…') || v.contains(DOTS) || !assigned_value_is_secret(v) {
                 c[0].to_string()
             } else {
-                let inner = v.trim_matches(|c| c == '"' || c == '\'');
-                let m = bbl_hostrules::secrets::mask(inner);
-                hits.push(Hit { masked: m.clone() });
-                format!("{}{}{m}", &c[1], &c[2])
+                let unquoted = v.trim_matches(|c| c == '"' || c == '\'');
+                let (core, tail) = if unquoted.len() == v.len() {
+                    split_tail(v)
+                } else {
+                    (unquoted, "")
+                };
+                hits.push(Hit {
+                    masked: format!("{}={DOTS}", &c[1]),
+                    known: false,
+                    fp: fingerprint(core),
+                });
+                format!("{}{}{DOTS}{tail}", &c[1], &c[2])
             }
         })
         .into_owned();
     (s, hits)
+}
+
+/// A value under a key of a structure (`{"apiKey": "…"}`): a credential when the key says so
+/// and the value is not a word, a path or a reference. A known shape is found by `mask`.
+pub fn named_value(key: &str, value: &str) -> Option<Hit> {
+    if !name_re().is_match(key) || shape_re().is_match(value) || !assigned_value_is_secret(value) {
+        return None;
+    }
+    Some(Hit {
+        masked: format!("{key}={DOTS}"),
+        known: false,
+        fp: fingerprint(value),
+    })
 }
 
 /// A command shown: secrets masked, whitespace folded, cut at 400 characters.
@@ -638,6 +710,52 @@ mod tests {
         );
         let (m, hits) = mask(&bearer);
         assert_eq!(hits.len(), 1, "{m}");
+        assert!(m.contains(&format!("Bearer {DOTS}")), "{m}");
+    }
+
+    #[test]
+    fn a_value_under_a_secret_name_shows_none_of_its_characters() {
+        let pw = format!("{}{}", "Qm7vR2", "pL9xW4kT");
+        let (m, hits) = mask(&format!("PGPASSWORD={pw} psql -h db"));
+        assert_eq!(hits.len(), 1, "{m}");
+        assert!(!hits[0].known);
+        assert_eq!(hits[0].masked, format!("PGPASSWORD={DOTS}"));
+        assert!(!m.contains(&pw[..4]), "{m}");
+        assert_eq!(m, format!("PGPASSWORD={DOTS} psql -h db"));
+        // inside quotes, inside a printed dict, with closing punctuation
+        let (_, hits) = mask(&format!("{{'api_key': '{pw}', 'n': 1}}"));
+        assert_eq!(hits.len(), 1);
+        let (m, hits) = mask(&format!("token: {pw}."));
+        assert_eq!(
+            (hits.len(), m.ends_with(&format!("{DOTS}."))),
+            (1, true),
+            "{m}"
+        );
+        assert_eq!(
+            named_value("apiKey", &pw).unwrap().masked,
+            format!("apiKey={DOTS}")
+        );
+        assert!(named_value("model", &pw).is_none());
+    }
+
+    #[test]
+    fn names_identifiers_paths_and_code_are_not_secrets() {
+        for text in [
+            // seen on a real machine: an identifier, Python output across lines
+            "API_KEY_BY_PROVIDER_119: dict",
+            "KEY: KEY_BY_PROVIDER_2024",
+            "OPENAI_API_KEY=None\nHF_TOKEN=None\n[gpt-5.2]",
+            "max_tokens=128000 tokenizer=bert-base-uncased-v12x author: Someone2026abc",
+            "secret_key = settings.secret_key2",
+            "TOKEN_FILE=src/auth/token_store2.rs",
+            "api_key=os.environ.get(\"KEY1\")",
+            "password: ${{ secrets.DB_PASSWORD_2 }}",
+            "PWD=/home/a/proj2/build",
+            "token: N/A\nHeader2025",
+        ] {
+            let (m, hits) = mask(text);
+            assert!(hits.is_empty(), "{text} → {m}");
+        }
     }
 
     #[test]

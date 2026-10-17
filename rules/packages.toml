@@ -29,7 +29,7 @@ quote = "Installs a package and any packages that it depends on."
 
 [[manager]]
 id = "pip"
-regex = '^((python3?|py)\s+-m\s+)?(pip3?|uv\s+pip)\s+install(\s+(?P<args>.*))?$'
+regex = '^((\S*/)?(python3?(\.\d+)?|py)\s+-m\s+)?((\S*/)?pip3?(\.\d+)?|uv\s+pip)\s+install(\s+(?P<args>.*))?$'
 [manager.source]
 kind = "documentation"
 url = "https://pip.pypa.io/en/stable/cli/pip_install/"

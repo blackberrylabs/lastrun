@@ -7,7 +7,7 @@
       ; `00_cadrage/synthese_sources.md`
 - [x] Nom verifie (crates.io, npm libres ; PyPI dormant sans rapport) et valide : Lastrun
 - [x] BRIEF rev. 1 valide (R1–R6)
-- [ ] Depot local, identite noreply, commit 1
+- [x] Depot local, identite noreply, commit 1 (`40901c7`, 2026-10-17)
 
 ## Etape 1. Coeur et CLI
 - [x] Fiches hotes `hosts/*.toml` : 12 lisibles (lecteur, retention, trous), 9 sans journal
@@ -24,7 +24,10 @@
 - [x] Tests : promesses (rien d'ecrit, rien de reseau, secret plante jamais ressorti, aucun
       texte d'echange dans la sortie), faux HOME avec un constat de chaque sorte ; clippy —
       24 tests, clippy propre (2026-10-17)
-- [ ] Passage reel de la CLI sur le poste d'Alexandre
+- [x] Passage reel 1 (2026-10-17) : 27 sessions, 1 294 commandes, 4 hotes presents ; cinq
+      defauts corriges (faux secrets, paquets lus dans un `$(…)`, identifiants OpenCode
+      confondus, sous-agents non signales, `| head` en erreur) — 27 tests
+- [ ] Passage reel 2 : les corrections verifiees sur le poste
 
 ## Etape 2. Maquette validee, puis app (Sessions, Actions, Supprimes, Paquets, Refuses)
 ## Etape 3. Paquets, depot, release 0.1.0 — sur accord ; `modules/lastrun.toml` + `latest` dans la tour ; hubs le jour meme ; `github_meta.sh`

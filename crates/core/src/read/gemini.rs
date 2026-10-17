@@ -65,7 +65,7 @@ fn gemini_one(ctx: &Ctx, f: &Path, text: &str, out: &mut Read) {
                 if let Some(msgs) = v.get("messages").and_then(Value::as_array) {
                     r.extend(msgs.iter().map(|m| (None, m.clone())));
                 }
-                out.scan(f, None, text);
+                out.scan_value(f, None, None, &v);
                 r
             }
             Err(_) => Vec::new(),
@@ -74,10 +74,17 @@ fn gemini_one(ctx: &Ctx, f: &Path, text: &str, out: &mut Read) {
         text.lines()
             .enumerate()
             .filter_map(|(n, l)| {
-                out.scan(f, Some((n + 1) as u32), l);
-                serde_json::from_str::<Value>(l)
-                    .ok()
-                    .map(|v| (Some((n + 1) as u32), v))
+                let lineno = Some((n + 1) as u32);
+                match serde_json::from_str::<Value>(l) {
+                    Ok(v) => {
+                        out.scan_value(f, lineno, None, &v);
+                        Some((lineno, v))
+                    }
+                    Err(_) => {
+                        out.scan(f, lineno, l);
+                        None
+                    }
+                }
             })
             .collect()
     };
@@ -206,10 +213,11 @@ fn qwen_one(ctx: &Ctx, f: &Path, text: &str, out: &mut Read) {
     let mut pending: Vec<usize> = Vec::new();
     for (n, line) in text.lines().enumerate() {
         let lineno = Some((n + 1) as u32);
-        out.scan(f, lineno, line);
         let Ok(v) = serde_json::from_str::<Value>(line) else {
+            out.scan(f, lineno, line);
             continue;
         };
+        out.scan_value(f, lineno, None, &v);
         if let Some(id) = v.get("sessionId").and_then(Value::as_str) {
             session = id.to_string();
         }

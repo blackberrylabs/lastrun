@@ -31,3 +31,13 @@ read-only, no network, never the text of an exchange.
 ### Summary figures for the tower
 
 `sessions_30d`, `commands_30d`, `files_deleted_30d`, `findings`.
+
+### Masking
+
+- A credential of a known shape (a provider's prefix: `sk-ant-`, `ghp_`, `AKIA`, a JWT…) keeps
+  its first 6 and last 4 characters, as everywhere in the family.
+- A value under a secret-looking name (`DB_PASSWORD=`, `apiKey:`, `Bearer`) shows none of its
+  characters: `DB_PASSWORD=••••••••`. The name must end with KEY, TOKEN, SECRET, PASSWORD,
+  PASSWD, PWD or CREDENTIAL(S); identifiers, dotted names, paths, code and references are not
+  values. JSON is read unescaped, value beside its key, so an escaped line break never glues
+  two values together.

@@ -79,10 +79,11 @@ fn one(ctx: &Ctx, f: &Path, text: &str, out: &mut Read) {
     let start = out.actions.len();
     for (n, line) in text.lines().enumerate() {
         let lineno = Some((n + 1) as u32);
-        out.scan(f, lineno, line);
         let Ok(v) = serde_json::from_str::<Value>(line) else {
+            out.scan(f, lineno, line);
             continue;
         };
+        out.scan_value(f, lineno, None, &v);
         let when = time(v.get("timestamp"));
         if started.is_none() {
             started = when;

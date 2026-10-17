@@ -15,10 +15,6 @@ use crate::sheets::Sheets;
 /// Up to this many evidence lines per finding.
 const EVIDENCE: usize = 8;
 
-fn short(id: &str) -> String {
-    id.chars().take(8).collect()
-}
-
 fn when(t: Option<DateTime<Utc>>) -> String {
     t.map(|t| t.with_timezone(&Local).format("%Y-%m-%d %H:%M").to_string())
         .unwrap_or_else(|| "time not recorded".into())
@@ -44,7 +40,7 @@ impl Ctx<'_> {
         format!(
             "{} session {} in {}, {}",
             self.name(&a.host),
-            short(&a.session),
+            self.inv.short(&a.session),
             p,
             when(a.when)
         )
@@ -142,7 +138,7 @@ pub fn build(
         out.push(f);
     }
 
-    // ---- secrets in transcripts: one per transcript file
+    // ---- secrets in transcripts: one per transcript file (one per database)
     let mut by_file: BTreeMap<(String, PathBuf), Vec<&crate::read::SecretHit>> = BTreeMap::new();
     for (host, h) in &an.secrets {
         by_file
@@ -151,27 +147,83 @@ pub fn build(
             .push(h);
     }
     for ((host, file), hits) in by_file {
-        let distinct: BTreeSet<&str> = hits.iter().map(|h| h.masked.as_str()).collect();
+        // the same value counted once; a known shape first
+        let mut distinct: BTreeMap<u64, &crate::read::SecretHit> = BTreeMap::new();
+        for h in &hits {
+            let e = distinct.entry(h.fp).or_insert(h);
+            if h.known && !e.known {
+                *e = h;
+            }
+        }
+        let mut shown: Vec<&crate::read::SecretHit> = distinct.values().copied().collect();
+        shown.sort_by(|a, b| (!a.known, &a.masked).cmp(&(!b.known, &b.masked)));
+        let known = shown.iter().filter(|h| h.known).count();
+        let named = shown.len() - known;
+        let sessions: BTreeSet<&str> = hits.iter().filter_map(|h| h.session.as_deref()).collect();
+        let shared = !sessions.is_empty()
+            || file
+                .extension()
+                .is_some_and(|e| matches!(e.to_str(), Some("db" | "sqlite" | "sqlite3" | "vscdb")));
         let first = hits.iter().filter_map(|h| h.line).min();
+        let name = c.name(&host);
+        let what = match (known, named) {
+            (k, 0) => format!("{k} credential(s) of a known shape (a provider's prefix)"),
+            (0, n) => {
+                format!("{n} value(s) under a secret-looking name (…_KEY, …TOKEN, …PASSWORD)")
+            }
+            (k, n) => format!(
+                "{k} credential(s) of a known shape and {n} value(s) under a secret-looking name"
+            ),
+        };
+        let mut detail = format!(
+            "{what} are written in clear — a command printed them or a file holding them was read."
+        );
+        if !sessions.is_empty() {
+            let list: Vec<&str> = sessions
+                .iter()
+                .take(EVIDENCE)
+                .map(|s| c.inv.short(s))
+                .collect();
+            detail.push_str(&format!(
+                " Session(s): {}{}.",
+                list.join(", "),
+                if sessions.len() > EVIDENCE {
+                    ", …"
+                } else {
+                    ""
+                }
+            ));
+        }
         let mut f = base(
             Kind::SecretInTranscript,
             format!("{host}/{}", file.display()),
-            format!("{} secret(s) in clear in a {} transcript", distinct.len(), c.name(&host)),
+            if shared {
+                format!("{} secret(s) in clear in {name}'s database", shown.len())
+            } else {
+                format!(
+                    "{} secret(s) in clear in one {name} transcript",
+                    shown.len()
+                )
+            },
             c.path(&file),
-            format!(
-                "{} credential(s) of a known shape are written in clear in this transcript — a command printed them or a file holding them was read.",
-                distinct.len()
-            ),
+            detail,
         );
         f.host = Some(host.clone());
         f.path = Some(file.clone());
         f.line = first;
-        f.evidence = distinct
-            .into_iter()
+        if sessions.len() == 1 {
+            f.session = sessions.iter().next().map(|s| s.to_string());
+        }
+        f.evidence = shown
+            .iter()
             .take(EVIDENCE)
-            .map(String::from)
+            .map(|h| h.masked.clone())
             .collect();
-        f.hint = Some("Rotate these keys at their provider. The transcript keeps them until the host prunes it; delete it yourself if you do not need it.".into());
+        f.hint = Some(if shared {
+            format!("Rotate these credentials where they were issued. This one database holds every {name} session: deleting it would lose them all.")
+        } else {
+            "Rotate these credentials where they were issued. The transcript keeps them until the host prunes it; delete it yourself if you do not need it.".into()
+        });
         if host == "claude-code" {
             f.url = Some("https://code.claude.com/docs/en/claude-directory".into());
         }
@@ -230,7 +282,7 @@ pub fn build(
             Kind::OutsideProject,
             format!("{host}/{session}/outside"),
             format!("{} file(s) written or deleted outside {}", acts.len(), project),
-            format!("{} session {}", c.name(host), short(session)),
+            format!("{} session {}", c.name(host), c.inv.short(session)),
             format!(
                 "The session worked in {project}; these paths are outside it, outside temporary directories and outside {}'s own folders.",
                 c.name(host)
@@ -279,7 +331,7 @@ pub fn build(
             Kind::UnattendedDestructive,
             format!("{}/{}/unattended", s.host, s.id),
             format!("Session run without asking ({}) with {what}", modes.iter().map(|m| m.as_str()).collect::<Vec<_>>().join(", ")),
-            format!("{} session {}", s.host_name, short(&s.id)),
+            format!("{} session {}", s.host_name, c.inv.short(&s.id)),
             format!(
                 "{} ran this session in `{}`, a mode in which it does not ask before acting; the session contains {what} (see the findings of the same session).",
                 s.host_name,
@@ -355,10 +407,10 @@ pub fn build(
                 "{} was written by {} (session {}, {}) and run by {} (session {}, {}). What it did is not in the transcript: only its name is.",
                 c.path(script),
                 c.name(&w.host),
-                short(&w.session),
+                c.inv.short(&w.session),
                 when(w.when),
                 c.name(&run.host),
-                short(&run.session),
+                c.inv.short(&run.session),
                 when(run.when)
             ),
         );
@@ -407,7 +459,7 @@ pub fn build(
             format!(
                 "{} session {}{}",
                 c.name(host),
-                short(session),
+                c.inv.short(session),
                 s.and_then(|s| s.project.clone())
                     .map(|p| format!(" in {}", c.path(&p)))
                     .unwrap_or_default()
@@ -462,7 +514,7 @@ pub fn build(
             .map(|s| {
                 format!(
                     "{} — {}",
-                    short(&s.id),
+                    c.inv.short(&s.id),
                     s.project.as_deref().map(|p| c.path(p)).unwrap_or_default()
                 )
             })
@@ -487,7 +539,7 @@ pub fn build(
             Kind::Denied,
             format!("{host}/{session}/denied"),
             format!("{} call(s) denied", acts.len()),
-            format!("{} session {}", c.name(host), short(session)),
+            format!("{} session {}", c.name(host), c.inv.short(session)),
             "Calls the host recorded as refused — by you or by a rule. The agent did not run them."
                 .into(),
         );

@@ -39,7 +39,15 @@ fn one_finding_of_each_kind() {
     let ids: Vec<&str> = inv.sessions.iter().map(|s| s.id.as_str()).collect();
     assert_eq!(
         ids,
-        ["oc-s3", "cx-s2", "gm-s4", "cc-s1", "cc-s0"],
+        [
+            "oc-s3",
+            "ses_f227aa01Xq",
+            "ses_f227aa02Lm",
+            "cx-s2",
+            "gm-s4",
+            "cc-s1",
+            "cc-s0"
+        ],
         "{ids:?}"
     );
     // the refusal is denied, the script is created, the deletes are there
@@ -120,6 +128,30 @@ fn one_finding_of_each_kind() {
         "{:?}",
         o.evidence
     );
+    // OpenCode: one database for every session — the password counted, the look-alikes
+    // not, the sessions named and told apart, no advice to delete the database
+    let oc = inv
+        .findings
+        .iter()
+        .find(|f| f.kind == Kind::SecretInTranscript && f.host.as_deref() == Some("opencode"))
+        .unwrap();
+    assert_eq!(
+        oc.title, "1 secret(s) in clear in OpenCode's database",
+        "{oc:?}"
+    );
+    assert_eq!(oc.evidence, vec!["DB_PASSWORD=••••••••"]);
+    assert!(oc.detail.contains("ses_f227aa01"), "{}", oc.detail);
+    assert!(oc.hint.as_deref().unwrap().contains("would lose them all"));
+    assert_eq!(inv.short("ses_f227aa01Xq"), "ses_f227aa01");
+    let sub = inv.session("opencode", "ses_f227aa02Lm").unwrap();
+    assert!(sub.subagent);
+    let pk: Vec<_> = inv
+        .findings
+        .iter()
+        .filter(|f| f.kind == Kind::PackageInstall && f.host.as_deref() == Some("opencode"))
+        .collect();
+    assert_eq!(pk.len(), 1);
+    assert_eq!(pk[0].evidence, vec!["pip: devtools, pandas"]);
     // Cursor present, no log; the hosts not on this machine are not findings
     assert!(inv
         .findings

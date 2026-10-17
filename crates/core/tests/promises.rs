@@ -98,8 +98,13 @@ fn no_text_of_an_exchange_and_no_secret_ever_comes_out() {
     let inventory = serde_json::to_string(&inv).unwrap();
     let report = lastrun_core::report::build(&inv, 1).to_json();
     let key = fixture_home::fake_key();
+    let pw = fixture_home::fake_password();
     for out in [&inventory, &report] {
         assert!(!out.contains(&key), "the planted key came out");
+        assert!(
+            !out.contains(&pw[..6]),
+            "a piece of the planted password came out"
+        );
         for c in fixture_home::CANARIES {
             assert!(!out.contains(c), "{c} came out");
         }
@@ -111,7 +116,9 @@ fn no_text_of_an_exchange_and_no_secret_ever_comes_out() {
         .find(|f| f.kind == lastrun_core::Kind::SecretInTranscript)
         .unwrap();
     assert!(
-        f.evidence.iter().all(|e| e.contains('…')),
+        f.evidence
+            .iter()
+            .all(|e| e.contains('…') || e.contains(lastrun_core::command::DOTS)),
         "{:?}",
         f.evidence
     );

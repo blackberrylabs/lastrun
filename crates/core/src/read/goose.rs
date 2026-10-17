@@ -87,7 +87,7 @@ fn one(ctx: &Ctx, f: &Path, conn: &Connection, out: &mut Read) -> Result<(), Str
         if when.is_some_and(|w| w < ctx.since) {
             continue;
         }
-        out.scan(f, None, &content);
+        out.scan_in(f, None, Some(&sid), &content);
         if let Some(w) = when {
             started.entry(sid.clone()).or_insert(w);
         }

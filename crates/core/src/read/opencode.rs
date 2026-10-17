@@ -116,10 +116,11 @@ fn one(ctx: &Ctx, f: &Path, conn: &Connection, out: &mut Read) -> Result<(), Str
             })
             .map_err(|e| e.to_string())?;
         for (_id, sid, created, data) in rows.flatten() {
-            out.scan(f, None, &data);
             let Ok(v) = serde_json::from_str::<Value>(&data) else {
+                out.scan_in(f, None, Some(&sid), &data);
                 continue;
             };
+            out.scan_value(f, None, Some(&sid), &v);
             let sess = ss.get(&sid);
             let model = v
                 .pointer("/model/modelID")
@@ -206,10 +207,11 @@ fn one(ctx: &Ctx, f: &Path, conn: &Connection, out: &mut Read) -> Result<(), Str
             .map_err(|e| e.to_string())?;
         let mut v1_sessions: HashSet<String> = HashSet::new();
         for (sid, created, data, mdata) in rows.flatten() {
-            out.scan(f, None, &data);
             let Ok(v) = serde_json::from_str::<Value>(&data) else {
+                out.scan_in(f, None, Some(&sid), &data);
                 continue;
             };
+            out.scan_value(f, None, Some(&sid), &v);
             if v.get("type").and_then(Value::as_str) != Some("tool") {
                 continue;
             }

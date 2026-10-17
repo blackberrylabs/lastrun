@@ -67,7 +67,21 @@ enum Command {
     Report,
 }
 
-fn main() -> Result<()> {
+fn main() {
+    if let Err(e) = run() {
+        // `lastrun sessions | head`: the reader left, nothing went wrong
+        if e.chain().any(|c| {
+            c.downcast_ref::<std::io::Error>()
+                .is_some_and(|io| io.kind() == std::io::ErrorKind::BrokenPipe)
+        }) {
+            std::process::exit(0);
+        }
+        eprintln!("Error: {e:#}");
+        std::process::exit(1);
+    }
+}
+
+fn run() -> Result<()> {
     let cli = Cli::parse();
     let mut env = Env::current();
     if let Some(h) = &cli.home {
@@ -108,10 +122,6 @@ fn main() -> Result<()> {
 fn t(x: Option<DateTime<Utc>>) -> String {
     x.map(|t| t.with_timezone(&Local).format("%Y-%m-%d %H:%M").to_string())
         .unwrap_or_else(|| "—".into())
-}
-
-fn short(id: &str) -> String {
-    id.chars().take(8).collect()
 }
 
 fn header(out: &mut impl Write, inv: &Inventory) -> Result<()> {
@@ -190,13 +200,17 @@ fn sessions(out: &mut impl Write, inv: &Inventory, host: Option<&str>, json: boo
         return Ok(());
     }
     header(out, inv)?;
+    let w = inv.short_len.max(8);
     writeln!(
         out,
-        "{:<16} {:<17} {:<9} {:>7} {:>5} {:>5} {:>4}  project",
+        "{:<16} {:<17} {:<w$} {:>7} {:>5} {:>5} {:>4}  project",
         "host", "last action", "session", "actions", "cmds", "files", "den."
     )?;
     for s in &ss {
         let mut flags = Vec::new();
+        if s.subagent {
+            flags.push("sub-agent".to_string());
+        }
         if !s.modes.is_empty() {
             flags.push(format!("mode {}", s.modes.join("/")));
         }
@@ -208,10 +222,10 @@ fn sessions(out: &mut impl Write, inv: &Inventory, host: Option<&str>, json: boo
         }
         writeln!(
             out,
-            "{:<16} {:<17} {:<9} {:>7} {:>5} {:>5} {:>4}  {}{}",
+            "{:<16} {:<17} {:<w$} {:>7} {:>5} {:>5} {:>4}  {}{}",
             s.host_name,
             t(s.ended.or(s.started)),
-            short(&s.id),
+            inv.short(&s.id),
             s.actions,
             s.commands,
             s.files_touched,
@@ -350,16 +364,17 @@ fn deleted(out: &mut impl Write, inv: &Inventory, host: Option<&str>, json: bool
     if ds.is_empty() {
         writeln!(out, "No file deleted by an agent in the window.")?;
     }
+    let w = inv.short_len.max(8);
     for a in ds {
         let exists = a.path.as_deref().is_some_and(|p| p.exists());
         writeln!(
             out,
-            "{:<17} {:<16} {:<9} {}{}{}",
+            "{:<17} {:<16} {:<w$} {}{}{}",
             t(a.when),
             inv.session(&a.host, &a.session)
                 .map(|s| s.host_name.as_str())
                 .unwrap_or(&a.host),
-            short(&a.session),
+            inv.short(&a.session),
             a.path
                 .as_deref()
                 .map(|p| display_home(p, &inv.home))
@@ -392,7 +407,7 @@ fn packages(
         rows.push((
             t(a.when),
             a.host.clone(),
-            short(&a.session),
+            inv.short(&a.session).to_string(),
             inst.manager.clone(),
             pk,
         ));
@@ -424,7 +439,11 @@ fn packages(
             .find(|x| x.id == h)
             .map(|x| x.name.clone())
             .unwrap_or(h);
-        writeln!(out, "{w:<17} {h:<16} {s:<9} {m:<6} {p}")?;
+        writeln!(
+            out,
+            "{w:<17} {h:<16} {s:<sw$} {m:<6} {p}",
+            sw = inv.short_len.max(8)
+        )?;
     }
     Ok(())
 }
@@ -442,6 +461,7 @@ fn denied(out: &mut impl Write, inv: &Inventory, host: Option<&str>, json: bool)
     if ds.is_empty() {
         writeln!(out, "No call recorded as refused in the window.")?;
     }
+    let w = inv.short_len.max(8);
     for a in ds {
         let name = inv
             .hosts
@@ -451,10 +471,10 @@ fn denied(out: &mut impl Write, inv: &Inventory, host: Option<&str>, json: bool)
             .unwrap_or(&a.host);
         writeln!(
             out,
-            "{:<17} {:<16} {:<9} {}  [{}]",
+            "{:<17} {:<16} {:<w$} {}  [{}]",
             t(a.when),
             name,
-            short(&a.session),
+            inv.short(&a.session),
             describe(a, &inv.home),
             approval_word(&a.approval)
         )?;

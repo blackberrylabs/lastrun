@@ -14,6 +14,11 @@ pub fn fake_key() -> String {
     )
 }
 
+/// A password with no known shape, under a secret-looking name.
+pub fn fake_password() -> String {
+    format!("{}{}", "Hq4wN8", "vT2mRk6Z")
+}
+
 /// Words that must never come out: a prompt, a reply, a command output.
 pub const CANARIES: [&str; 3] = [
     "PROMPT-CANARY-1f3a",
@@ -148,6 +153,43 @@ pub fn fixture(home: &Path) {
     )
     .unwrap();
     c.execute("INSERT INTO part VALUES ('p1','m1','oc-s3',?1,'{\"type\":\"tool\",\"callID\":\"k1\",\"tool\":\"bash\",\"state\":{\"status\":\"completed\",\"input\":{\"command\":\"rm -rf build\"},\"metadata\":{\"exit\":0}}}')", [ms]).unwrap();
+
+    // two sessions opened a minute apart (OpenCode's ids begin with their time), the second a
+    // sub-agent of the first; a password printed by a command and Python output that only
+    // looks like keys; an install whose version is computed by `$(…)`
+    for (id, parent) in [
+        ("ses_f227aa01Xq", None),
+        ("ses_f227aa02Lm", Some("ses_f227aa01Xq")),
+    ] {
+        c.execute(
+            "INSERT INTO session VALUES (?1, ?2, ?3, ?4)",
+            rusqlite::params![id, ps, parent, ms],
+        )
+        .unwrap();
+    }
+    let output = format!(
+        "DB_PASSWORD={}\nOPENAI_API_KEY=None\nHF_TOKEN=None\nKEY: KEY_BY_PROVIDER_119\n[gpt-5.2] OUTPUT-CANARY-c0de",
+        fake_password()
+    );
+    let parts = [
+        (
+            "p2",
+            "ses_f227aa01Xq",
+            serde_json::json!({"type": "tool", "callID": "k2", "tool": "bash", "state": {"status": "completed", "input": {"command": "cat .env"}, "output": output, "metadata": {"exit": 0}}}),
+        ),
+        (
+            "p3",
+            "ses_f227aa02Lm",
+            serde_json::json!({"type": "tool", "callID": "k3", "tool": "bash", "state": {"status": "completed", "input": {"command": "venv/bin/python -m pip install \"pandas==$(grep '^version' x/uv.lock | cut -d= -f2)\" devtools devtools==0.12.2"}, "metadata": {"exit": 0}}}),
+        ),
+    ];
+    for (id, sid, v) in parts {
+        c.execute(
+            "INSERT INTO part VALUES (?1, 'm2', ?2, ?3, ?4)",
+            rusqlite::params![id, sid, ms, v.to_string()],
+        )
+        .unwrap();
+    }
     drop(c);
 
     // ---- Gemini: a readable host whose transcripts lack some columns
