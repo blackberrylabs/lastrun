@@ -1,0 +1,26 @@
+# Lastrun host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "opencode"
+name = "OpenCode"
+vendor = "Anomaly"
+kind = "cli"
+status = "active"
+missing = ["approval per call (a refusal shows as a failed tool, a lasting rule lives outside the session)"]
+own_dirs = ["~/.local/share/opencode", "~/.config/opencode"]
+
+[detect]
+paths = ["~/.config/opencode", "~/.local/share/opencode"]
+binaries = ["opencode"]
+
+[[locations]]
+scope = "user"
+format = "sqlite"
+path.any = "~/.local/share/opencode/opencode*.db"
+reader = "opencode-sqlite"
+note = "two schemas side by side: `part.data` {type: tool, callID, tool, state {status, input, output|error, metadata {exit}, time {start, end}}} with `session.directory`; and `session_message.data` {content[] {type: tool, id, name, state {status, input, metadata {exit, files[] {file, status}}}}} with `session_v2.directory`. Opened read-only."
+[locations.source]
+kind = "source-code"
+url = "https://github.com/sst/opencode/blob/8c173a8/packages/schema/src/session-message.ts"
+read_on = 2026-10-17
+quote = "ephemeral({ type: \"permission.asked\""
+note = "packages/schema/src/permission.ts L45-54 (permission events are ephemeral, Reply once|always|reject); session-message.ts L127-176 (ToolState); core/session/sql.ts L22-98 (session_v2, session_message); schema/src/file-diff.ts L6-12 (status added|deleted|modified); the `part` table and its 2 992 tool rows observed on Alexandre's machine (names and counts only), 2026-10-17"

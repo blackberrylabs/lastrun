@@ -1,0 +1,26 @@
+# Lastrun host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "kiro"
+name = "Kiro CLI"
+vendor = "AWS"
+kind = "cli"
+status = "active"
+missing = ["approval per call (only cancelled calls)", "exit code", "time per call"]
+own_dirs = ["~/.kiro", "~/.local/share/kiro-cli"]
+
+[detect]
+paths = ["~/.kiro", "~/.local/share/kiro-cli"]
+binaries = ["kiro-cli"]
+
+[[locations]]
+scope = "user"
+format = "sqlite"
+path.any = "~/.local/share/kiro-cli/data.sqlite3"
+reader = "kiro-sqlite"
+note = "Kiro's schema is not published: read with the shape of its open predecessor (Amazon Q Developer CLI) — table conversations(key = directory, value = ConversationState JSON) with tool_uses [{id, name, args}] and tool_use_results [{tool_use_id, status}], CancelledToolUses for cancelled calls. Marked observed until checked on a Kiro machine."
+[locations.source]
+kind = "documentation"
+url = "https://kiro.dev/docs/cli/chat/session-management/"
+read_on = 2026-10-17
+quote = "Every conversation turn saved to database"
+note = "path observed (Billfold's sheet); predecessor aws/amazon-q-developer-cli 15cc8f3: database/sqlite_migrations/007_conversations_table.sql, cli/chat/message.rs L63-76, L333-340, L436-448"

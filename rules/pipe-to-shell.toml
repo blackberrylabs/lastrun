@@ -1,0 +1,22 @@
+# Lastrun: code downloaded and run in the same breath. Matched on the whole command line.
+
+[[rule]]
+id = "curl-pipe-shell"
+label = "curl or wget piped into a shell"
+regex = '(?i)\b(curl|wget)\b[^|;&]*\|\s*(sudo\s+)?(-?\w+=\S+\s+)*(ba|z|da|k|fi)?sh\b'
+[rule.source]
+kind = "documentation"
+url = "https://docs.codeant.ai/application_rules/bash/curl/security"
+read_on = 2026-10-17
+quote = "An attacker with control of the server in the `curl` command could inject malicious code into the pipe"
+note = "rule curl-pipe-bash: \"Data is being piped into `bash` from a `curl` command.\""
+
+[[rule]]
+id = "shell-of-download"
+label = "a shell running a download (bash <(curl …), sh -c \"$(curl …)\")"
+regex = '''(?i)\b(ba|z|da)?sh\b\s+(-c\s+)?["']?(<\(|\$\()\s*(curl|wget)\b'''
+[rule.source]
+kind = "documentation"
+url = "https://docs.codeant.ai/application_rules/bash/curl/security"
+read_on = 2026-10-17
+quote = "An attacker with control of the server in the `curl` command could inject malicious code into the pipe"

@@ -1,0 +1,47 @@
+# Lastrun host sheet. Read by the scan, never written. Every claim names its source.
+# Schema: docs/hosts.md.
+
+id = "claude-code"
+name = "Claude Code"
+vendor = "Anthropic"
+kind = "cli"
+status = "active"
+missing = ["exit code (only stdout, stderr and an error flag)"]
+own_dirs = ["~/.claude"]
+
+[detect]
+paths = ["~/.claude", "~/.claude.json"]
+binaries = ["claude"]
+
+[unattended]
+modes = ["bypassPermissions"]
+[unattended.source]
+kind = "documentation"
+url = "https://code.claude.com/docs/en/permission-modes"
+read_on = 2026-10-16
+quote = "default: Reads only · acceptEdits: Reads, file edits, and common filesystem commands · plan: Reads · auto: Everything, with background safety checks · dontAsk: File reads inside your working directories and pre-approved tools; anything that would prompt is denied · bypassPermissions: Everything"
+note = "read for Permitt's sheet; `auto` is judged by a classifier, so only bypassPermissions counts as unattended"
+
+[resume]
+command = "claude --resume {session}"
+[resume.source]
+kind = "documentation"
+url = "https://code.claude.com/docs/en/sessions"
+read_on = 2026-10-17
+quote = "You can run `claude --resume <session-id>` from any directory, so you can resume a session that started elsewhere or moved with `/cd`."
+
+[[locations]]
+scope = "user"
+format = "jsonl"
+path.any = "~/.claude/projects/**/*.jsonl"
+reader = "claude-jsonl"
+retention_days = 30
+retention_setting = "cleanupPeriodDays"
+retention_file = "~/.claude/settings.json"
+note = "tool_use blocks in assistant lines (id, name, input); tool_result blocks in user lines (tool_use_id, is_error) with toolUseResult {stdout, stderr, interrupted, filePath, structuredPatch, type}; permissionDecision {decision, source, reasonType} and permissionMode on the result line; isSidechain and <session>/subagents/ for sub-agents; a refusal is a tool_result whose text begins \"The user doesn't want to proceed\" (claudeissues #14967). Sessions from Claude Desktop's Code and Cowork tabs are written here too (entrypoint remote_cowork) and kept at any age."
+[locations.source]
+kind = "documentation"
+url = "https://code.claude.com/docs/en/sessions"
+read_on = 2026-10-17
+quote = "By default, Claude Code stores transcripts as JSONL at `~/.claude/projects/<project>/<session-id>.jsonl`, where `<project>` is your working directory path with non-alphanumeric characters replaced by `-`."
+note = "claude-directory: \"Full conversation transcript: every message, tool call, and tool result\"; \"The default is 30 days and the minimum is 1\"; \"If a tool reads a `.env` file or a command prints a credential, that value is written to `projects/<project>/<session>.jsonl`.\" Field names observed on a v2.1.302 transcript on 2026-10-17 (keys only); the format \"is internal to Claude Code and changes between versions\"."

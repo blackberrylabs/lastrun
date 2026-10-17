@@ -1,0 +1,22 @@
+# Lastrun host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "amp"
+name = "Amp"
+vendor = "Sourcegraph"
+kind = "cli"
+status = "active"
+references = ["https://mintlify.wiki/PeonPing/peon-ping/integrations/amp"]
+
+[detect]
+paths = ["~/.config/amp", "~/.local/share/amp"]
+binaries = ["amp"]
+
+[no_action_log]
+reason = "Amp's thread files are not documented: tool_use blocks are observed by third parties, but tool names, inputs, results and approvals are not described anywhere."
+exists = "`~/.local/share/amp/threads/T-*.json`, and the threads in the Amp web app"
+[no_action_log.source]
+kind = "observed"
+url = "https://mintlify.wiki/PeonPing/peon-ping/integrations/amp"
+read_on = 2026-10-17
+quote = "Amp stores conversation threads as JSON files in `~/.local/share/amp/threads/`."
+note = "ampcode.com/manual and ampcode.com/docs/cli/settings name no data path"

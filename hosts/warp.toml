@@ -1,0 +1,21 @@
+# Lastrun host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "warp"
+name = "Warp"
+vendor = "Warp"
+kind = "terminal"
+status = "active"
+references = ["https://docs.warp.dev/agents/cli/agent-conversations"]
+
+[detect]
+paths = ["~/.config/warp-terminal", "~/.local/state/warp-terminal", "~/.local/share/warp-terminal"]
+binaries = ["warp-terminal"]
+
+[no_action_log]
+reason = "Warp saves agent conversations locally and syncs them to the Warp account, but the local schema is not published."
+exists = "`/export-to-file` exports a conversation as Markdown; the conversations in Warp"
+[no_action_log.source]
+kind = "documentation"
+url = "https://docs.warp.dev/agents/cli/agent-conversations"
+read_on = 2026-10-17
+quote = "The CLI saves every agent conversation as you work"

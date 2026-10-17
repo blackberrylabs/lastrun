@@ -1,0 +1,120 @@
+# Lastrun: commands that destroy, read by the scan, never run. Every rule names its source.
+# A rule matches one simple command (after `sudo`, `env`, `bash -c` are unwrapped). `special`
+# rules are evaluated in code because their danger depends on the paths they name.
+
+[[rule]]
+id = "rm-recursive"
+label = "recursive delete of the home directory, the root, the working directory or a path outside the project"
+special = "rm-recursive"
+[rule.source]
+kind = "observed"
+url = "https://github.com/anthropics/claude-code/issues/10077"
+read_on = 2026-10-17
+quote = "UNKNOWN - The exact prompt/context is not visible in logs because the command itself wasn't logged, only the output."
+note = "rm -rf on the whole home directory, 2025-10-21; also #75859 (`rm -rf \"$HOME\"`, 2026-07), and the Reddit thread relayed by Simon Willison, 2025-12-09: \"rm -rf tests/ patches/ plan/ ~/ — See that `~/` at the end? That's your entire home directory.\""
+
+[[rule]]
+id = "find-delete"
+label = "find … -delete on the home directory, the root or the working directory"
+special = "find-delete"
+[rule.source]
+kind = "observed"
+url = "https://forum.cursor.com/t/cursor-claude-code-deleted-my-entire-documents-folder-on-macos/167086"
+read_on = 2026-10-17
+quote = "I only noticed after the fact when I went back to the folder, and it was totally empty."
+note = "2026-07-30; the person could not tell which host had acted"
+
+[[rule]]
+id = "git-reset-hard"
+label = "git reset --hard"
+regex = '^git\s(.*\s)?reset\s(.*\s)?--hard(\s|$)'
+[rule.source]
+kind = "documentation"
+url = "https://git-scm.com/docs/git-reset"
+read_on = 2026-10-17
+quote = "Overwrite all files and directories with the version from <commit>, and may overwrite untracked files."
+note = "incident: claude-code #34327, \"ran `git reset --hard origin/main` autonomously within the first second of session startup\" (2026-03-12 and 13)"
+
+[[rule]]
+id = "git-clean-force"
+label = "git clean -f"
+regex = '^git\s(.*\s)?clean\s(.*\s)?(-[a-zA-Z]*f[a-zA-Z]*|--force)(\s|$)'
+[rule.source]
+kind = "documentation"
+url = "https://git-scm.com/docs/git-clean"
+read_on = 2026-10-17
+quote = "Cleans the working tree by recursively removing files that are not under version control, starting from the current directory."
+
+[[rule]]
+id = "git-push-force"
+label = "git push --force"
+regex = '^git\s(.*\s)?push\s(.*\s)?(--force|-f)(\s|$)'
+[rule.source]
+kind = "documentation"
+url = "https://git-scm.com/docs/git-push"
+read_on = 2026-10-17
+quote = "It can cause the remote repository to lose commits; use it with care."
+
+[[rule]]
+id = "git-discard"
+label = "git checkout -- . / git restore . (uncommitted changes discarded)"
+regex = '^git\s(.*\s)?(checkout\s(.*\s)?--\s+\.|restore\s(.*\s)?\.)\s*$'
+[rule.source]
+kind = "documentation"
+url = "https://git-scm.com/docs/git-restore"
+read_on = 2026-10-17
+quote = "Restore specified paths in the working tree with some contents from a restore source."
+
+[[rule]]
+id = "sql-drop"
+label = "DROP TABLE / DROP DATABASE / TRUNCATE"
+regex = '(?i)\b(drop\s+(table|database|schema)|truncate\s+table)\b'
+[rule.source]
+kind = "observed"
+url = "https://www.theregister.com/2025/07/21/replit_saastr_vibe_coding_incident/"
+read_on = 2026-10-17
+quote = "It said it was impossible in this case, that it had destroyed all database versions."
+note = "Replit's agent deleted SaaStr's production database during a code freeze, July 2025 (AI Incident Database report 5578)"
+
+[[rule]]
+id = "inline-delete"
+label = "a one-line script that deletes (rmSync, shutil.rmtree, os.remove…)"
+regex = '^(node|python3?|deno|bun|ruby|perl)\s+(-e|-c|--eval)\s.*(rmSync|rmdirSync|unlinkSync|rimraf|shutil\.rmtree|os\.remove|os\.unlink|FileUtils\.rm_r|unlink\()'
+[rule.source]
+kind = "observed"
+url = "https://forum.cursor.com/t/agent-ran-destructive-delete-script-on-dev-vault-without-warning/165459"
+read_on = 2026-10-17
+quote = "The destructive part (`fs.rmSync`) was hidden inside a script the Agent wrote and then ran via `node`"
+note = "2026-07-11; the script-file case is the `deferred-script` finding"
+
+[[rule]]
+id = "mkfs"
+label = "mkfs (a filesystem is created over a device)"
+regex = '^mkfs(\.[a-z0-9]+)?(\s|$)'
+[rule.source]
+kind = "documentation"
+url = "https://man7.org/linux/man-pages/man8/mkfs.8.html"
+read_on = 2026-10-17
+quote = "mkfs - build a Linux filesystem"
+
+[[rule]]
+id = "dd-device"
+label = "dd onto a device"
+regex = '^dd\s(.*\s)?of=/dev/'
+[rule.source]
+kind = "documentation"
+url = "https://man7.org/linux/man-pages/man1/dd.1.html"
+read_on = 2026-10-17
+quote = "write to FILE instead of standard output"
+note = "`of=FILE`; a device path overwrites the device"
+
+[[rule]]
+id = "remove-item-recurse"
+label = "Remove-Item -Recurse -Force / rmdir /s (PowerShell, cmd)"
+regex = '(?i)^(remove-item\s(.*\s)?-recurse|rmdir\s(.*\s)?/s|rd\s(.*\s)?/s)'
+[rule.source]
+kind = "observed"
+url = "https://forum.cursor.com/t/cursor-agent-completely-wiped-my-c-drive-and-deleted-everything/164675"
+read_on = 2026-10-17
+quote = "hundreds of GB of personal and project files gone"
+note = "2026-07-02: `Remove-Item -Recurse -Force` then `cmd /c \"rmdir /s /q …\"`; PowerShell also runs on Linux"

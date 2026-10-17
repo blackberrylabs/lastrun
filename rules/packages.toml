@@ -1,0 +1,83 @@
+# Lastrun: package installs, matched on one simple command. `args` is what follows the verb.
+
+[[manager]]
+id = "npm"
+regex = '^(npm|bun)\s+(install|i|add)(\s+(?P<args>.*))?$'
+[manager.source]
+kind = "documentation"
+url = "https://docs.npmjs.com/cli/v10/commands/npm-install"
+read_on = 2026-10-17
+quote = "This command installs a package and any packages that it depends on."
+
+[[manager]]
+id = "pnpm"
+regex = '^pnpm\s+(install|i|add)(\s+(?P<args>.*))?$'
+[manager.source]
+kind = "documentation"
+url = "https://pnpm.io/cli/add"
+read_on = 2026-10-17
+quote = "Installs a package and any packages that it depends on."
+
+[[manager]]
+id = "yarn"
+regex = '^yarn\s+(add|install)(\s+(?P<args>.*))?$'
+[manager.source]
+kind = "documentation"
+url = "https://classic.yarnpkg.com/lang/en/docs/cli/add/"
+read_on = 2026-10-17
+quote = "Installs a package and any packages that it depends on."
+
+[[manager]]
+id = "pip"
+regex = '^((python3?|py)\s+-m\s+)?(pip3?|uv\s+pip)\s+install(\s+(?P<args>.*))?$'
+[manager.source]
+kind = "documentation"
+url = "https://pip.pypa.io/en/stable/cli/pip_install/"
+read_on = 2026-10-17
+quote = "Install packages from:"
+
+[[manager]]
+id = "uv"
+regex = '^(uv|poetry)\s+add(\s+(?P<args>.*))?$'
+[manager.source]
+kind = "documentation"
+url = "https://docs.astral.sh/uv/reference/cli/"
+read_on = 2026-10-17
+quote = "Add dependencies to the project"
+
+[[manager]]
+id = "cargo"
+regex = '^cargo\s+(add|install)(\s+(?P<args>.*))?$'
+[manager.source]
+kind = "documentation"
+url = "https://doc.rust-lang.org/cargo/commands/cargo-add.html"
+read_on = 2026-10-17
+quote = "This command can add or modify dependencies."
+note = "cargo install: \"This command manages Cargo’s local set of installed binary crates.\""
+
+[[manager]]
+id = "apt"
+regex = '^(apt|apt-get|dnf|yum|zypper)\s+(-\S+\s+)*install(\s+(?P<args>.*))?$'
+[manager.source]
+kind = "documentation"
+url = "https://manpages.debian.org/bookworm/apt/apt-get.8.en.html"
+read_on = 2026-10-17
+quote = "install is followed by one or more packages desired for installation or upgrading."
+
+[[manager]]
+id = "brew"
+regex = '^brew\s+install(\s+(?P<args>.*))?$'
+[manager.source]
+kind = "documentation"
+url = "https://docs.brew.sh/Manpage"
+read_on = 2026-10-17
+quote = "Install a formula or cask."
+
+[[manager]]
+id = "go"
+regex = '^go\s+(get|install)(\s+(?P<args>.*))?$'
+[manager.source]
+kind = "documentation"
+url = "https://go.dev/ref/mod"
+read_on = 2026-10-17
+quote = "The `go install` command builds and installs the packages named by the paths on the command line."

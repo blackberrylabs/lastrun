@@ -1,0 +1,17 @@
+{
+  "app.title": "Lastrun — une phrase : ce qu'il répond",
+  "header.scanning": "Lecture…",
+  "header.rescan": "Relire",
+  "kpi.files": "Fichiers lus",
+  "kpi.findings": "Constats",
+  "list.title": "Constats",
+  "list.subtitle": "Le plus grave en premier. Cliquez pour le détail.",
+  "list.empty": "Aucun constat.",
+  "detail.hint": "Ce que vous pourriez faire",
+  "detail.open": "Ouvrir le fichier",
+  "detail.copy": "Copier le chemin",
+  "detail.note": "Lastrun ne modifie rien sur votre machine. Chaque action ici vous revient.",
+  "status.ready": "{files} fichier(s) lu(s) · {findings} constat(s) · rien n'a été écrit",
+  "theme.dark": "Sombre",
+  "theme.light": "Clair"
+}

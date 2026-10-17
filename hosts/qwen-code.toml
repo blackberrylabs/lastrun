@@ -1,0 +1,35 @@
+# Lastrun host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "qwen-code"
+name = "Qwen Code"
+vendor = "Alibaba"
+kind = "cli"
+status = "active"
+missing = ["approval per call (the session's approval mode only)", "exit code (written in the output text)"]
+own_dirs = ["~/.qwen"]
+
+[detect]
+paths = ["~/.qwen"]
+binaries = ["qwen"]
+
+[unattended]
+modes = ["yolo"]
+[unattended.source]
+kind = "documentation"
+url = "https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/"
+read_on = 2026-10-16
+quote = "plan (analyze only, do not modify files or execute commands), default (require approval before file edits or shell commands run), auto-edit (automatically approve file edits), auto (LLM classifier auto-approves safe actions, blocks risky ones), yolo (automatically approve all tool calls)"
+note = "read for Permitt's sheet"
+
+[[locations]]
+scope = "user"
+format = "jsonl"
+path.any = "~/.qwen/projects/*/chats/*.jsonl"
+reader = "qwen-jsonl"
+note = "ChatRecord {uuid, sessionId, timestamp, type, cwd, model, executionContext {approvalMode}, message.parts[].functionCall {id, name, args}, toolCallResult {callId, status, error}}; system records subtype session_approval_mode {mode}. The internal comment still names ~/.qwen/tmp/<id>/chats/, which is stale."
+[locations.source]
+kind = "documentation"
+url = "https://github.com/QwenLM/qwen-code/blob/0ed9895/docs/users/features/structured-output.md"
+read_on = 2026-10-17
+quote = "The on-disk chat-recording JSONL at `~/.qwen/projects/<sanitized-cwd>/chats/<sessionId>.jsonl`"
+note = "packages/core/src/services/chatRecordingService.ts L354-545 (ChatRecord), L750-754 (session approval mode); config/storage.ts L619-623"

@@ -1,0 +1,22 @@
+# Lastrun host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "cursor"
+name = "Cursor"
+vendor = "Anysphere"
+kind = "editor"
+status = "active"
+references = ["https://forum.cursor.com/t/richer-agent-transcripts-lifecycle-data-for-observability-langfuse-stop-hooks/166592"]
+
+[detect]
+paths = ["~/.config/Cursor", "~/.cursor"]
+binaries = ["cursor"]
+
+[no_action_log]
+reason = "Cursor's agent transcript has no tool results, no timestamps and no call ids, and its state database is not documented; no approval and no exit code are written anywhere."
+exists = "Cursor's hooks (afterShellExecution, afterFileEdit) can record actions from now on; the chat history inside Cursor"
+[no_action_log.source]
+kind = "observed"
+url = "https://forum.cursor.com/t/richer-agent-transcripts-lifecycle-data-for-observability-langfuse-stop-hooks/166592"
+read_on = 2026-10-17
+quote = "~/.cursor/projects/<encoded-cwd>/agent-transcripts/<conversation_id>/<conversation_id>.jsonl"
+note = "the request lists what the transcript lacks: \"Tool results or tool outputs\", \"Timestamps on rows\", \"Message IDs and tool-call IDs\"; Cursor's answer: \"there's no implementation timeline yet\". Hooks: https://cursor.com/docs/agent/hooks"

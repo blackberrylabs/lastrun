@@ -1,0 +1,17 @@
+{
+  "app.title": "Lastrun — one sentence: what it answers",
+  "header.scanning": "Reading…",
+  "header.rescan": "Rescan",
+  "kpi.files": "Files read",
+  "kpi.findings": "Findings",
+  "list.title": "Findings",
+  "list.subtitle": "Most serious first. Click one for the detail.",
+  "list.empty": "No finding.",
+  "detail.hint": "What you could do",
+  "detail.open": "Open file",
+  "detail.copy": "Copy path",
+  "detail.note": "Lastrun changes nothing on your machine. Every action here is yours to take.",
+  "status.ready": "{files} file(s) read · {findings} finding(s) · nothing has been written",
+  "theme.dark": "Dark",
+  "theme.light": "Light"
+}

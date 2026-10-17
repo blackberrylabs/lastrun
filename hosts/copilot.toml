@@ -1,0 +1,26 @@
+# Lastrun host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "copilot"
+name = "GitHub Copilot CLI"
+vendor = "GitHub"
+kind = "cli"
+status = "active"
+missing = ["diff of file edits", "exit code (success only)"]
+own_dirs = ["~/.copilot"]
+
+[detect]
+paths = ["~/.copilot"]
+binaries = ["copilot"]
+
+[[locations]]
+scope = "user"
+format = "jsonl"
+path.any = "~/.copilot/session-state/*/events.jsonl"
+reader = "copilot-jsonl"
+note = "{type, timestamp, data}: tool.execution_start {toolCallId, toolName, arguments, mcpServerName}, tool.execution_complete {toolCallId, success}, permission.completed {result.kind approved|denied-by-rules|denied-interactively-by-user}, session.context_changed {cwd}. Sessions are also synced to GitHub."
+[locations.source]
+kind = "documentation"
+url = "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference"
+read_on = 2026-10-17
+quote = "Each session directory stores an event log (`events.jsonl`) and workspace artifacts (plans, checkpoints, tracked files)."
+note = "streaming-events: \"Persisted: Saved to the session event log on disk. Replayed when resuming a session.\"; envelope type/timestamp/data observed by ccusage rust/adapters/copilot/src/parser.rs"

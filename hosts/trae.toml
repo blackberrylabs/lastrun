@@ -1,0 +1,22 @@
+# Lastrun host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "trae"
+name = "Trae"
+vendor = "ByteDance"
+kind = "editor"
+status = "active"
+references = ["https://docs.trae.ai/ide/agent"]
+
+[detect]
+paths = ["~/.config/Trae", "~/.trae"]
+binaries = ["trae"]
+
+[no_action_log]
+reason = "Nothing public describes a local record of Trae's agent actions."
+exists = "the chat history inside Trae"
+[no_action_log.source]
+kind = "observed"
+url = "https://docs.trae.ai/ide/agent"
+read_on = 2026-10-17
+quote = "ROBOTS_DISALLOWED"
+note = "the documentation refuses automated reading; no local path for agent history is documented elsewhere"

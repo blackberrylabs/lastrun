@@ -1,0 +1,21 @@
+# Lastrun host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "windsurf"
+name = "Windsurf"
+vendor = "Cognition"
+kind = "editor"
+status = "active"
+references = ["https://docs.devin.ai/desktop/cascade/cascade"]
+
+[detect]
+paths = ["~/.codeium/windsurf"]
+binaries = ["windsurf"]
+
+[no_action_log]
+reason = "The documentation describes checkpoints and reverts, but no local record of the agent's actions, its path or its format."
+exists = "Cascade's checkpoints inside Windsurf"
+[no_action_log.source]
+kind = "documentation"
+url = "https://docs.devin.ai/desktop/cascade/cascade"
+read_on = 2026-10-17
+quote = "This will revert all code changes back to the state of your codebase at the desired step."

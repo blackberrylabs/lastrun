@@ -1,0 +1,20 @@
+[package]
+name = "lastrun-cli"
+description = "Command line of Lastrun: what your AI agents did on this machine"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "lastrun"
+path = "src/main.rs"
+
+[dependencies]
+lastrun-core = { path = "../core" }
+bbl-hostrules.workspace = true
+chrono.workspace = true
+anyhow.workspace = true
+clap.workspace = true
+serde_json.workspace = true

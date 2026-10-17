@@ -1,0 +1,25 @@
+# Lastrun host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "roo-code"
+name = "Roo Code"
+vendor = "Roo Code"
+kind = "vscode-extension"
+status = "active"
+missing = ["exit code", "approval per call", "working directory per call"]
+own_dirs = ["~/.config/Code/User/globalStorage/rooveterinaryinc.roo-cline", "~/.roo"]
+
+[detect]
+paths = ["~/.config/Code/User/globalStorage/rooveterinaryinc.roo-cline", "~/.roo"]
+
+[[locations]]
+scope = "user"
+format = "json"
+path.any = "~/.config/Code/User/globalStorage/rooveterinaryinc.roo-cline/tasks/*/ui_messages.json"
+reader = "cline-tasks"
+note = "the Cline message format: `ask: command` with the command, `say: tool` with ClineSayTool {tool, path}; a refusal goes to the model as {\"status\":\"denied\"} without a mark of its own in ui_messages"
+[locations.source]
+kind = "source-code"
+url = "https://github.com/RooCodeInc/Roo-Code/blob/b867ec9/packages/types/src/message.ts"
+read_on = 2026-10-17
+quote = "clineMessageSchema"
+note = "src/shared/globalFileNames.ts L2-6; packages/types/src/vscode-extension-host.ts L693-740 (ClineSayTool); src/core/tools/ExecuteCommandTool.ts L67 askApproval(\"command\", …)"

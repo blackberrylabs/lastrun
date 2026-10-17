@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- Placeholder icon in the family's style: the dark tile, one shape, one accent.
+       Replace the shape; keep the tile and the colours (#2d3440→#1b2029, #f4f6f9, #eb6834,
+       #2fa32f) so the family reads as one. -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2d3440"/>
+      <stop offset="1" stop-color="#1b2029"/>
+    </linearGradient>
+  </defs>
+  <rect x="32" y="32" width="448" height="448" rx="96" fill="url(#bg)"/>
+  <rect x="136" y="136" width="240" height="240" rx="32" fill="#f4f6f9"/>
+  <circle cx="336" cy="176" r="28" fill="#eb6834"/>
+</svg>

@@ -1,0 +1,26 @@
+# Lastrun host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "kilo-code"
+name = "Kilo Code"
+vendor = "Kilo"
+kind = "cli"
+status = "active"
+missing = ["approval per call (a refusal shows as a failed tool)"]
+own_dirs = ["~/.local/share/kilo", "~/.config/kilo"]
+
+[detect]
+paths = ["~/.local/share/kilo", "~/.config/kilo", "~/.kilocode"]
+binaries = ["kilo"]
+
+[[locations]]
+scope = "user"
+format = "sqlite"
+path.any = "~/.local/share/kilo/kilo*.db"
+reader = "opencode-sqlite"
+note = "an OpenCode fork: the same `part` (V1) and `session_message` (V2) tables. Retention is opt-in (retention.enabled off by default), so Lastrun does not announce a pruning date."
+[locations.source]
+kind = "source-code"
+url = "https://github.com/Kilo-Org/kilocode/blob/1552877/packages/opencode/src/kilocode/session/retention.ts"
+read_on = 2026-10-17
+quote = "Deletion is fail-closed: a pass does nothing unless the policy is explicitly enabled."
+note = "packages/opencode/src/storage/db.ts L33-40 (kilo.db); packages/schema/src/v1/session.ts L289-352 (ToolState, ToolPart)"

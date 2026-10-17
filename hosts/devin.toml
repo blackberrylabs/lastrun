@@ -1,0 +1,22 @@
+# Lastrun host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "devin"
+name = "Devin CLI"
+vendor = "Cognition"
+kind = "cli"
+status = "active"
+references = ["https://docs.devin.ai/cli/essential-commands"]
+
+[detect]
+paths = ["~/.config/devin", "~/.local/share/devin"]
+binaries = ["devin"]
+
+[no_action_log]
+reason = "Devin keeps a local conversation history to resume sessions, but its path, format and content are not documented."
+exists = "`devin -r` to resume a session; its hooks (PreToolUse, PostToolUse) can record actions from now on"
+[no_action_log.source]
+kind = "documentation"
+url = "https://docs.devin.ai/cli/essential-commands"
+read_on = 2026-10-17
+quote = "Your conversation history is saved so you can resume a session later."
+note = "docs.devin.ai/llms.txt: no page is dedicated to logs, transcripts, or history; hooks carry session_id but no transcript_path"

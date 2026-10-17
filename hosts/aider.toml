@@ -1,0 +1,21 @@
+# Lastrun host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "aider"
+name = "Aider"
+kind = "cli"
+status = "active"
+references = ["https://github.com/Aider-AI/aider/blob/5dc9490/aider/coders/base_coder.py"]
+
+[detect]
+paths = ["~/.aider", "~/.aider.conf.yml"]
+binaries = ["aider"]
+
+[no_action_log]
+reason = "Aider keeps a Markdown chat history per repository: commands and edited paths appear as lines of text, without output, exit code, diff, session id or time per action."
+exists = "`.aider.chat.history.md` at the root of each repository (\"> Running …\", \"> Applied edit to …\", \"> Commit …\"), and the commits Aider makes"
+[no_action_log.source]
+kind = "source-code"
+url = "https://github.com/Aider-AI/aider/blob/5dc9490/aider/coders/base_coder.py"
+read_on = 2026-10-17
+quote = "f\"Applied edit to {path}\""
+note = "base_coder.py L2334, L2455 (\"Run shell command?\"), L2472 (f\"Running {command}\"); io.py L995-999 (tool_output → blockquote); args.py L271-300 (default .aider.chat.history.md)"

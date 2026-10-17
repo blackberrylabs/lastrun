@@ -1,0 +1,26 @@
+# Lastrun host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "zed"
+name = "Zed"
+vendor = "Zed Industries"
+kind = "editor"
+status = "active"
+missing = ["time per call (only the thread's last update)", "exit code (in the output text)", "approval per call (only a refusal leaves a trace)"]
+own_dirs = ["~/.local/share/zed", "~/.config/zed"]
+
+[detect]
+paths = ["~/.config/zed", "~/.local/share/zed"]
+binaries = ["zed", "zeditor"]
+
+[[locations]]
+scope = "user"
+format = "sqlite"
+path.any = "~/.local/share/zed/threads/threads.db"
+reader = "zed-sqlite"
+note = "threads(id, updated_at, data_type json|zstd, data): DbThread {messages[] {Agent {content[] {ToolUse {id, name, input}}, tool_results {id: {is_error, content, output}}}}}; terminal input {command, cd}; a refusal is the error \"Permission to run tool denied by user\""
+[locations.source]
+kind = "source-code"
+url = "https://github.com/zed-industries/zed/blob/56934ec/crates/agent/src/db.rs"
+read_on = 2026-10-17
+quote = "CREATE TABLE IF NOT EXISTS threads"
+note = "db.rs L15-49 (DbThread), L366-388 (data_type), L446-459; agent/src/thread.rs L6392-6393; tools/terminal_tool.rs L1301-1325 (\"failed with exit code\"); tool_permissions.rs L208-212"

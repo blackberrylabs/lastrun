@@ -1,0 +1,77 @@
+[package]
+name = "lastrun"
+description = "Lastrun: what your AI agents did on this machine — read-only"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "lastrun-app"
+path = "src/main.rs"
+
+[dependencies]
+lastrun-core = { path = "../core" }
+bbl-hostrules.workspace = true
+bbl-report.workspace = true
+iced = { version = "=0.13.1", features = ["tokio"] }
+bbl-ui.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
+# ---------------------------------------------------------------- packaging
+# `packaging/build.sh` builds the workspace once, then runs `cargo deb --no-build` and
+# `cargo generate-rpm` from here, so one package ships both binaries.
+
+[package.metadata.deb]
+name = "lastrun"
+maintainer = "Alexandre Do <alexandre@blackberrylabs.dev>"
+copyright = "2026, Alexandre Do"
+license-file = ["../../LICENSE", "0"]
+extended-description = """\
+Lastrun reads the transcripts that AI coding hosts already write (Claude Code, Codex, \
+Gemini CLI, OpenCode, Goose, Cline, Copilot CLI, Zed…) and shows what the agents did: \
+commands run, files created, edited and deleted, packages installed, tools of MCP servers, \
+with their approval and how they ended. Never the text of an exchange; read-only, no \
+network, secrets masked. Ships the desktop app (lastrun-app) and the command line (lastrun)."""
+section = "devel"
+priority = "optional"
+depends = "$auto, libxkbcommon0, libwayland-client0 | libx11-6"
+recommends = "libvulkan1, mesa-vulkan-drivers"
+assets = [
+    ["target/release/lastrun-app", "usr/bin/", "755"],
+    ["target/release/lastrun", "usr/bin/", "755"],
+    ["../../assets/lastrun.desktop", "usr/share/applications/", "644"],
+    ["../../assets/icon.svg", "usr/share/icons/hicolor/scalable/apps/lastrun.svg", "644"],
+    ["../../assets/icon-16.png", "usr/share/icons/hicolor/16x16/apps/lastrun.png", "644"],
+    ["../../assets/icon-32.png", "usr/share/icons/hicolor/32x32/apps/lastrun.png", "644"],
+    ["../../assets/icon-48.png", "usr/share/icons/hicolor/48x48/apps/lastrun.png", "644"],
+    ["../../assets/icon-64.png", "usr/share/icons/hicolor/64x64/apps/lastrun.png", "644"],
+    ["../../assets/icon-128.png", "usr/share/icons/hicolor/128x128/apps/lastrun.png", "644"],
+    ["../../assets/icon-256.png", "usr/share/icons/hicolor/256x256/apps/lastrun.png", "644"],
+    ["../../assets/icon-512.png", "usr/share/icons/hicolor/512x512/apps/lastrun.png", "644"],
+    ["../../README.md", "usr/share/doc/lastrun/README.md", "644"],
+]
+
+[package.metadata.generate-rpm]
+name = "lastrun"
+summary = "What your AI agents did on this machine, read back from their transcripts"
+license = "MIT"
+url = "https://github.com/blackberrylabs/lastrun"
+requires = { libxkbcommon = "*" }
+assets = [
+    { source = "target/release/lastrun-app", dest = "/usr/bin/lastrun-app", mode = "755" },
+    { source = "target/release/lastrun", dest = "/usr/bin/lastrun", mode = "755" },
+    { source = "assets/lastrun.desktop", dest = "/usr/share/applications/lastrun.desktop", mode = "644" },
+    { source = "assets/icon.svg", dest = "/usr/share/icons/hicolor/scalable/apps/lastrun.svg", mode = "644" },
+    { source = "assets/icon-16.png", dest = "/usr/share/icons/hicolor/16x16/apps/lastrun.png", mode = "644" },
+    { source = "assets/icon-32.png", dest = "/usr/share/icons/hicolor/32x32/apps/lastrun.png", mode = "644" },
+    { source = "assets/icon-48.png", dest = "/usr/share/icons/hicolor/48x48/apps/lastrun.png", mode = "644" },
+    { source = "assets/icon-64.png", dest = "/usr/share/icons/hicolor/64x64/apps/lastrun.png", mode = "644" },
+    { source = "assets/icon-128.png", dest = "/usr/share/icons/hicolor/128x128/apps/lastrun.png", mode = "644" },
+    { source = "assets/icon-256.png", dest = "/usr/share/icons/hicolor/256x256/apps/lastrun.png", mode = "644" },
+    { source = "assets/icon-512.png", dest = "/usr/share/icons/hicolor/512x512/apps/lastrun.png", mode = "644" },
+    { source = "README.md", dest = "/usr/share/doc/lastrun/README.md", mode = "644", doc = true },
+    { source = "LICENSE", dest = "/usr/share/licenses/lastrun/LICENSE", mode = "644", doc = true },
+]

@@ -1,0 +1,20 @@
+# Lastrun host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "jetbrains-ai"
+name = "JetBrains AI Assistant / Junie"
+vendor = "JetBrains"
+kind = "ide-plugin"
+status = "active"
+references = ["https://www.jetbrains.com/help/ai-assistant/how-we-handle-your-code-and-data.html"]
+
+[detect]
+paths = ["~/.config/JetBrains", "~/.junie"]
+
+[no_action_log]
+reason = "No log of actions (commands, files, approvals) is documented; the request log lasts for the IDE session only."
+exists = "the chat history inside the IDE"
+[no_action_log.source]
+kind = "documentation"
+url = "https://www.jetbrains.com/help/ai-assistant/how-we-handle-your-code-and-data.html"
+read_on = 2026-10-17
+quote = "Logs are stored during the current AI Assistant session."

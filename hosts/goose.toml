@@ -1,0 +1,26 @@
+# Lastrun host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "goose"
+name = "Goose"
+vendor = "Block"
+kind = "cli"
+status = "active"
+missing = ["exit code", "diff of file edits", "approval per call (only a refusal leaves a trace)"]
+own_dirs = ["~/.local/share/goose", "~/.config/goose"]
+
+[detect]
+paths = ["~/.config/goose", "~/.local/share/goose"]
+binaries = ["goose"]
+
+[[locations]]
+scope = "user"
+format = "sqlite"
+path.any = "~/.local/share/goose/sessions/sessions.db"
+reader = "goose-sqlite"
+note = "messages(session_id, role, content_json, created_timestamp) with blocks toolRequest {id, toolCall {value {name, arguments}}} and toolResponse {id, toolResult {value {isError}}}; sessions(id, working_dir). A refusal is a toolResponse whose text begins \"The user has declined to run this tool.\""
+[locations.source]
+kind = "documentation"
+url = "https://github.com/block/goose/blob/bfcc6ee/documentation/docs/guides/sessions/session-management.md"
+read_on = 2026-10-17
+quote = "Starting with version 1.10.0, goose uses a SQLite database (`sessions.db`) instead of individual `.jsonl` files."
+note = "crates/goose/src/session/session_manager.rs L1141-1213 (tables); goose-provider-types/src/conversation/message.rs L132-192; agents/tool_execution.rs L151 DECLINED_RESPONSE"

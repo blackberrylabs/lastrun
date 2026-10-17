@@ -1,0 +1,39 @@
+# Lastrun host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "cline"
+name = "Cline"
+vendor = "Cline"
+kind = "vscode-extension"
+status = "active"
+missing = ["exit code", "working directory per call"]
+own_dirs = ["~/.cline", "~/.config/Code/User/globalStorage/saoudrizwan.claude-dev"]
+
+[detect]
+paths = ["~/.cline", "~/.config/Code/User/globalStorage/saoudrizwan.claude-dev"]
+binaries = ["cline"]
+
+[[locations]]
+scope = "user"
+format = "json"
+path.any = "~/.config/Code/User/globalStorage/saoudrizwan.claude-dev/tasks/*/ui_messages.json"
+reader = "cline-tasks"
+note = "ClineMessage {ts, type ask|say, ask|say, text}: `command` carries the command, `tool` a JSON ClineSayTool {tool: editedExistingFile|newFileCreated|fileDeleted|readFile…, path}, `use_mcp_server`; `say: command_permission_denied` marks a refusal; an `ask` answered then `say` of the same name is an approved run"
+[locations.source]
+kind = "source-code"
+url = "https://github.com/cline/cline/blob/a42df8c/apps/vscode/src/shared/ExtensionMessage.ts"
+read_on = 2026-10-17
+quote = "command_permission_denied"
+note = "ExtensionMessage.ts L191-306 (ClineMessage, ClineAsk, ClineSay, ClineSayTool); core/storage/disk.ts L17-53 (tasks/<id>/ui_messages.json)"
+
+[[locations]]
+scope = "user"
+format = "json"
+path.any = "~/.cline/data/sessions/*/*.messages.json"
+reader = "cline-sessions"
+note = "the SDK runtime: AgentMessage {createdAt, content[] {type: tool-call, toolCallId, toolName, input} | {type: tool-result, toolCallId, isError}}; the manifest <id>.json next to it gives cwd"
+[locations.source]
+kind = "source-code"
+url = "https://github.com/cline/cline/blob/a42df8c/sdk/packages/shared/src/agent.ts"
+read_on = 2026-10-17
+quote = "tool-call"
+note = "sdk/packages/core/src/runtime/host/local-runtime-host.ts L480-510 (manifest), sdk/packages/shared/src/storage/paths.ts L199 (sessions)"

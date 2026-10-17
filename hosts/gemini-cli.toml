@@ -1,0 +1,29 @@
+# Lastrun host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "gemini-cli"
+name = "Gemini CLI"
+vendor = "Google"
+kind = "cli"
+status = "active"
+missing = ["approval per call", "exit code (written in the output text when not zero)", "working directory per call"]
+own_dirs = ["~/.gemini"]
+
+[detect]
+paths = ["~/.gemini"]
+binaries = ["gemini"]
+
+[[locations]]
+scope = "user"
+format = "jsonl"
+path.any = ["~/.gemini/tmp/*/chats/session-*.jsonl", "~/.gemini/tmp/*/chats/session-*.json"]
+reader = "gemini-jsonl"
+retention_days = 30
+retention_setting = "general.sessionRetention.maxAge"
+retention_file = "~/.gemini/settings.json"
+note = "first line {sessionId, projectHash, startTime, directories}; then one MessageRecord per line, `type: gemini` with toolCalls[] {id, name, args, status, timestamp, resultDisplay (FileDiff)}; patches `{$patch: {id, toolCalls}}` update a message; status validating|scheduled|error|success|executing|cancelled|awaiting_approval"
+[locations.source]
+kind = "documentation"
+url = "https://github.com/google-gemini/gemini-cli/blob/ed96fae/docs/cli/session-management.md"
+read_on = 2026-10-17
+quote = "What is saved: The complete conversation history, including: … All tool executions (inputs and outputs). … Sessions are stored in `~/.gemini/tmp/<project_hash>/chats/`"
+note = "sessionRetention: \"Defaults to `\"30d\"`\"; packages/core/src/services/chatRecordingTypes.ts (ToolCallRecord); tools/shell.ts L913 `Exit Code: ${result.exitCode}`"

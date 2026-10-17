@@ -1,0 +1,21 @@
+# Lastrun host sheet. Read by the scan, never written. Every claim names its source.
+
+id = "claude-desktop"
+name = "Claude Desktop"
+vendor = "Anthropic"
+kind = "desktop-app"
+status = "active"
+references = ["https://code.claude.com/docs/en/claude-directory"]
+
+[detect]
+paths = ["~/.config/Claude"]
+binaries = ["claude-desktop"]
+
+[no_action_log]
+reason = "Chat conversations and the connectors' tool calls keep no local log. The Code and Cowork tabs are Claude Code sessions: their actions are read under Claude Code."
+exists = "the conversations in the app; Code and Cowork sessions under Claude Code"
+[no_action_log.source]
+kind = "documentation"
+url = "https://code.claude.com/docs/en/claude-directory"
+read_on = 2026-10-17
+quote = "Claude Code keeps the transcript of a session you started or most recently continued in Claude Desktop or Cowork at any age."

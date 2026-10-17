@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Name=Lastrun
+GenericName=What your AI agents did on this machine
+GenericName[fr]=Ce que vos agents IA ont fait sur ce poste
+Comment=Commands, files and packages of your AI agents, session by session, read back from their transcripts. Reads, never writes.
+Comment[fr]=Les commandes, fichiers et paquets de vos agents IA, session par session, relus dans leurs transcriptions. Lit, n'écrit jamais.
+Exec=lastrun-app
+Icon=lastrun
+Terminal=false
+Categories=Development;Utility;
+Keywords=ai agents;audit;transcript;claude code;codex;opencode;history;
+StartupWMClass=lastrun-app
