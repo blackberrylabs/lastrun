@@ -49,5 +49,6 @@ rapport `bbl-report/1` verifie par les tests, gravites dans le CHANGELOG) :
       `the_real_reports_conform_and_open_their_module`, seuls les comptes 5 → 6 sont a changer
 - [ ] §5 passage reel du module et de `bbl refresh` avec Lastrun installe ; README du module
       et de la tour, profil de l'organisation ; `github_meta.sh`
-- [ ] Release du module d'abord (« Get it » doit tomber sur un paquet), la tour ensuite
-      (`latest = "0.1.0"`)
+- [x] Paquets construits et verifies depuis l'exterieur (2026-10-17) ; tour 0.4.0 construite
+- [ ] Publication — sur accord : depot `blackberrylabs/lastrun`, push, tag `v0.1.0`, release ;
+      puis tour : push, tag `v0.4.0`, release ; profil ; `github_meta.sh`

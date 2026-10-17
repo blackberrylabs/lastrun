@@ -3,6 +3,26 @@
 
 ---
 
+## 2026-10-17 — release 0.1.0
+
+- **App validee** par Alexandre sur sa machine (« ok je valide », commit `e911506`).
+- **Paquets** construits par `packaging/build.sh` sur la machine d'Alexandre (commit
+  `f8dfc78`, CHANGELOG date, limites connues, carte d'apercu social) : `.deb` 7,3 Mo,
+  `.rpm` 7,9 Mo, AppImage 10,3 Mo, `SHA256SUMS` ; `appimagetool` recopie depuis Billfold,
+  aucun telechargement.
+- **Verification depuis l'exterieur** (cloud) : les trois sommes justes ; le `.deb` ouvert
+  sans etre installe — deux binaires, `.desktop`, sept icones, README et copyright,
+  dependances declarees ; `lastrun --version` = 0.1.0 ; la CLI identique dans le `.deb` et
+  l'AppImage ; le binaire publie, sur le faux HOME, donne le meme rapport que la version de
+  developpement (16 constats) et ce rapport passe le test de la tour
+  (`the_real_reports_conform_and_open_their_module`) ; l'app publiee demarre (Xvfb).
+- **Tour 0.4.0** construite dans la foulee (commit `8450bfb`) : le paquet complet porte les
+  memes binaires Lastrun que le `.deb` du module, son entree de menu masquee, et fournit /
+  remplace / entre en conflit avec `lastrun`.
+- **Ordre de publication** (`docs/new-module.md` §5) : Lastrun d'abord, la tour ensuite.
+
+---
+
 ## 2026-10-17 — maquette validee, puis l'app
 
 - **Rappel d'Alexandre** : suivre le dossier des nouveaux modules de la tour
