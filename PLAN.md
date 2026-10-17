@@ -47,8 +47,11 @@ rapport `bbl-report/1` verifie par les tests, gravites dans le CHANGELOG) :
       dans `tests/fixtures/reports/` (chemins `/home/me`), les comptes de modules des tests ;
       essai a blanc fait le 2026-10-17 : la fiche se charge, le rapport passe
       `the_real_reports_conform_and_open_their_module`, seuls les comptes 5 → 6 sont a changer
-- [ ] §5 passage reel du module et de `bbl refresh` avec Lastrun installe ; README du module
-      et de la tour, profil de l'organisation ; `github_meta.sh`
+- [x] §5 README du module et de la tour, profil de l'organisation ; `github_meta.sh`
 - [x] Paquets construits et verifies depuis l'exterieur (2026-10-17) ; tour 0.4.0 construite
-- [ ] Publication — sur accord : depot `blackberrylabs/lastrun`, push, tag `v0.1.0`, release ;
-      puis tour : push, tag `v0.4.0`, release ; profil ; `github_meta.sh`
+- [x] Publication (accord d'Alexandre, 2026-10-17) : depot `blackberrylabs/lastrun`, push,
+      tag `v0.1.0`, release ; tour 0.4.0 (push, tag, release) ; profil ; `github_meta.sh` ;
+      releases verifiees depuis l'exterieur (telechargement public, sommes, version)
+- [x] §5 passage reel de `bbl refresh` avec Lastrun installe (paquet complet 0.4.0) : 7 constats
+      en 0,8 s, six modules installes dans `bbl modules`
+- [ ] Apercu social : `assets/social-preview.png` a deposer a la main (Settings → Social preview)

@@ -20,6 +20,16 @@
   memes binaires Lastrun que le `.deb` du module, son entree de menu masquee, et fournit /
   remplace / entre en conflit avec `lastrun`.
 - **Ordre de publication** (`docs/new-module.md` §5) : Lastrun d'abord, la tour ensuite.
+- **Publie** le soir meme (accord d'Alexandre) : `blackberrylabs/lastrun` cree, `main` et
+  `v0.1.0` pousses, release avec les trois paquets et `SHA256SUMS` ; tour `v0.4.0` publiee ;
+  profil et metadonnees GitHub. **Verifie depuis l'exterieur** : les paquets telecharges par
+  leur adresse publique, sommes justes, `lastrun --version` = 0.1.0, rapport `bbl-report/1`.
+- **Accroc, de mon fait** : le commit 0.4.0 de la tour a fait perdre a `github_meta.sh` son
+  bit d'execution (fichier recopie depuis une copie qui ne le gardait pas) ; corrige par un
+  commit dedie avant de lancer le script. Lecon : un script transporte garde son mode, ou se
+  verifie par `git diff --summary` avant le commit.
+- **Paquet complet 0.4.0 installe** sur la machine d'Alexandre a la place du 0.3.1 ;
+  `bbl refresh lastrun` : 7 constats en 0,8 s ; `bbl modules` : les six modules installes.
 
 ---
 
