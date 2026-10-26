@@ -43,10 +43,10 @@
 Suivant `Blackberrylabs/docs/new-module.md` (§0–2 deja tenus : gabarit, `bbl-hostrules`,
 rapport `bbl-report/1` verifie par les tests, gravites dans le CHANGELOG) :
 - [x] §3 `--select <id du constat>` tenu par l'app reelle
-- [ ] §4 dans la tour : `modules/lastrun.toml`, l'entree de `spec.rs`, le rapport de Lastrun
+- [x] §4 dans la tour : `modules/lastrun.toml`, l'entree de `spec.rs`, le rapport de Lastrun
       dans `tests/fixtures/reports/` (chemins `/home/me`), les comptes de modules des tests ;
       essai a blanc fait le 2026-10-17 : la fiche se charge, le rapport passe
-      `the_real_reports_conform_and_open_their_module`, seuls les comptes 5 → 6 sont a changer
+      `the_real_reports_conform_and_open_their_module`, seuls les comptes 5 → 6 sont a changer — fait : `modules/lastrun.toml` est dans la tour 0.4.0 — 2026-10-26
 - [x] §5 README du module et de la tour, profil de l'organisation ; `github_meta.sh`
 - [x] Paquets construits et verifies depuis l'exterieur (2026-10-17) ; tour 0.4.0 construite
 - [x] Publication (accord d'Alexandre, 2026-10-17) : depot `blackberrylabs/lastrun`, push,
@@ -54,4 +54,5 @@ rapport `bbl-report/1` verifie par les tests, gravites dans le CHANGELOG) :
       releases verifiees depuis l'exterieur (telechargement public, sommes, version)
 - [x] §5 passage reel de `bbl refresh` avec Lastrun installe (paquet complet 0.4.0) : 7 constats
       en 0,8 s, six modules installes dans `bbl modules`
-- [ ] Apercu social : `assets/social-preview.png` a deposer a la main (Settings → Social preview)
+- [ ] Apercu social : `assets/social-preview.png` a deposer a la main (Settings → Social preview) — fichier commite ; le televersement sur GitHub reste a faire a la main (au 2026-10-26)
+- [ ] Capture d'ecran dans le README (`docs/screenshots/` absent) : a faire sur l'ecran d'Alexandre, sur le dossier de demonstration

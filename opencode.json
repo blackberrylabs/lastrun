@@ -1,0 +1,62 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "permission": {
+    "bash": {
+      "*": "allow",
+      "git push": "ask",
+      "git push *": "ask",
+      "git tag *": "ask",
+      "git tag": "allow",
+      "git reset --hard*": "ask",
+      "git clean*": "ask",
+      "git branch -D*": "ask",
+      "git rm*": "ask",
+      "git rebase*": "ask",
+      "git commit --amend*": "ask",
+      "git add -f*": "ask",
+      "git add --force*": "ask",
+      "rm *": "ask",
+      "rmdir *": "ask",
+      "unlink *": "ask",
+      "shred *": "ask",
+      "find *-delete*": "ask",
+      "cargo clean*": "ask",
+      "sudo *": "ask",
+      "apt *": "ask",
+      "apt-get *": "ask",
+      "dpkg *": "ask",
+      "snap *": "ask",
+      "flatpak *": "ask",
+      "systemctl *": "ask",
+      "crontab *": "ask",
+      "cargo publish*": "ask",
+      "gh *": "ask",
+      "gh release view*": "allow",
+      "gh release list*": "allow",
+      "gh repo view*": "allow",
+      "gh run list*": "allow",
+      "*packaging/build.sh*": "ask",
+      "*packaging/bundle.sh*": "ask",
+      "*packaging/github_meta.sh*": "ask",
+      "*rename.sh*": "ask",
+      "cat *.env*": "deny",
+      "head *.env*": "deny",
+      "tail *.env*": "deny",
+      "less *.env*": "deny",
+      "source *.env*": "deny"
+    },
+    "read": {
+      "*": "allow",
+      "*.env": "deny",
+      "*.env.*": "deny",
+      "*.env.example": "allow"
+    },
+    "edit": {
+      "*": "allow",
+      "*.env": "deny",
+      "*.env.*": "deny",
+      "*BRIEF.md": "ask",
+      "*LICENSE": "ask"
+    }
+  }
+}
